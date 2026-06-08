@@ -1,0 +1,39 @@
+npcId: saul-boggle
+displayName: Saul Boggle
+portrait: SaulBoogle
+conversations:
+  - id: intro_part_1
+    priority: 100
+    requiresFlags: []
+    setFlags:
+      - saw_saul_part_1
+    lines:
+      - bodyText: "Hello bumpy heathen. Weeeeelllcome to the town of perpetual sunset!"
+      - bodyText: "You're just in time for a ritual led by the SMOOTH Saul Boggle."
+      - bodyText: "I'm what they call a natural born leader. MY PLAN IS SMOOTH AS BUTTER!"
+      - bodyText: "AS SLICK AS BLOOD!"
+
+  - id: intro_part_2
+    priority: 200
+    requiresFlags:
+      - saw_saul_part_1
+    setFlags:
+      - saw_saul_part_2
+    lines:
+      - bodyText: "Our harvests have been failing. NOT A SINGLE COB OF CORN GROWS IN MILLDREAD."
+      - bodyText: "Why do you think that is? OUR GOD IS FUUURIOUS!"
+      - bodyText: "OH VICIOUS COBIGAIL, GOD OF THE HARVEST. WE'VE LET YOU DOWN."
+      - bodyText: "But all that's going to CHAAANGE..."
+      - bodyText: "You see, a letter arrived that says our Cobigail needs a HARVEST OF BLOOD!"
+      - bodyText: "So I've SMOOOOTHLY decided we'll sacrifice the dustiest, eldiest elder around."
+      - bodyText: "Oh, their blood will be the SMOOTHEST and Cobigail will be OH-SO-SATISFIIIEED!"
+
+  - id: intro_part_3
+    priority: 300
+    requiresFlags:
+      - saw_saul_part_2
+    setFlags: []
+    lines:
+      - bodyText: "I can't let ya through. The blood harvest MUST GO SMOOTHLY."
+      - bodyText: "I'm TOO SMOOTH a leader. Who could disagree with a smooth guy like me?"
+      - bodyText: "WOULDN'T YOU LIKE TO KNOW, BUMPY-BUTT?"

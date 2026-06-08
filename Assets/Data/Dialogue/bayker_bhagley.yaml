@@ -1,0 +1,48 @@
+npcId: bayker_bhagley
+displayName: Bayker Bhagley
+portrait: BaykerBhagley
+conversations:
+  - id: intro_part_1
+    priority: 100
+    requiresFlags: []
+    setFlags:
+      - saw_bayker_part_1
+    lines:
+      - bodyText: "-Aaah..."
+      - bodyText: "(sneeze) HAAAACHHOOOOOOOOO!!!"
+      - bodyText: "Snff."
+      - bodyText: "Thorry little guy. I might be a lil' bit allergic to yeatht."
+      - bodyText: "But I can still cook all THORTH of stuff! Athk anyone in town!"
+      - speakerOverride: Inspekta
+        portrait: Inspekta
+        bodyText: "There yew are! Thank King yew made it."
+      - bodyText: "Like my big Prized Pappy Pumpkin over- ahh..."
+      - bodyText: "AHHH..."
+      - bodyText: "...it went away."
+
+  - id: intro_part_2
+    priority: 200
+    requiresFlags:
+      - saw_saul_part_1
+    setFlags:
+      - saw_bayker_part_2
+    lines:
+      - bodyText: "[rememberedJam] H-THAT'TH RIGHT! TH JAM!"
+      - bodyText: "We would FEAST on Milldreadberry Jam at the Harvest! We'd even thmear some on the altar for Cobigail."
+      - bodyText: "A milldreadberry needth to be cooked with friendship! Or elth it's inedible!"
+      - bodyText: "Say..."
+      - bodyText: "Gimmie that Milldread berry! Ol' Bayker'th got an idea."
+
+  - id: intro_part_3
+    priority: 300
+    requiresFlags:
+      - saw_bayker_part_2
+    setFlags: []
+    lines:
+      - bodyText: "I haven't seen a Milldreadberry in AGETH... you must have given me the last one..."
+      - bodyText: "Here we go... hmmm hm hmmm hm..."
+      - bodyText: "One stir for my friendthip with GOODY..."
+      - bodyText: "One stir for my friendthip with YOU..."
+      - bodyText: "And one stir for my friendthip with THAUL, who I miss!"
+      - bodyText: "Thweet Milldreadberry Jam, cooked with love for all my friendth."
+      - bodyText: "Go remind those lonely folkth what the Harvest ith all about. I'll be waiting outside."

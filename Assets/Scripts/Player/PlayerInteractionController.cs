@@ -1,28 +1,34 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInteractionController : MonoBehaviour
+public sealed class PlayerInteractionController : MonoBehaviour
 {
     [Header("Input")]
-    public InputActionAsset inputActions; // Reference to the input actions asset
+    [SerializeField] private InputActionAsset inputActions;
+
+    [Header("Interaction")]
+    [SerializeField] private float maxInteractionDistance = 1f;
+    [SerializeField] private DialogueRunner dialogueRunner;
 
     private InputAction interactAction;
 
-    private float maxInteractionDistance = 1f;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Awake()
     {
-        // Initialize input actions
+        if (dialogueRunner == null)
+        {
+            dialogueRunner = FindAnyObjectByType<DialogueRunner>();
+        }
+    }
+
+    private void Start()
+    {
         if (inputActions == null)
         {
             Debug.LogError("Input Actions asset not assigned!");
             return;
         }
 
-        // Get the Player action map
         var playerActionMap = inputActions.FindActionMap("Player");
         if (playerActionMap == null)
         {
@@ -30,57 +36,62 @@ public class PlayerInteractionController : MonoBehaviour
             return;
         }
 
-        // Get individual actions
         interactAction = playerActionMap.FindAction("Interact");
-
         if (interactAction == null)
         {
             Debug.LogError("Interact action not found");
             return;
         }
 
-        // Subscribe to input events
         interactAction.started += OnInteract;
-
-        // Enable the Player action map
         playerActionMap.Enable();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDestroy()
     {
-        
+        if (interactAction != null)
+        {
+            interactAction.started -= OnInteract;
+        }
     }
 
-    public void OnInteract(InputAction.CallbackContext context)
+    private void OnInteract(InputAction.CallbackContext context)
     {
-        // Find all NPCs by tag "NPC"
-        GameObject[] npcs = GameObject.FindGameObjectsWithTag("NPC");
-        if (npcs == null || npcs.Length == 0)
+        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
         {
-            Debug.Log("No NPCs found with tag 'NPC'.");
+            dialogueRunner.Advance();
             return;
         }
 
-        // Find the nearest NPC
-        GameObject nearest = null;
+        GameObject[] npcs = GameObject.FindGameObjectsWithTag("NPC");
+        if (npcs.Length == 0)
+        {
+            return;
+        }
+
+        DialogueYamlLoader nearestLoader = null;
         float nearestDistSqr = float.MaxValue;
         Vector3 pos = transform.position;
 
         foreach (GameObject npc in npcs)
         {
+            DialogueYamlLoader loader = npc.GetComponent<DialogueYamlLoader>();
+            if (loader == null)
+            {
+                continue;
+            }
+
             float d = (npc.transform.position - pos).sqrMagnitude;
             if (d < nearestDistSqr)
             {
                 nearestDistSqr = d;
-                nearest = npc;
+                nearestLoader = loader;
             }
         }
 
-        // Check if nearest is valid
-        if (nearest != null && nearestDistSqr < Math.Pow(maxInteractionDistance, 2))
+        if (nearestLoader != null && nearestDistSqr <= Math.Pow(maxInteractionDistance, 2))
         {
-            Debug.Log("Nearest NPC: " + nearest.name);
+            dialogueRunner?.BeginDialogue(nearestLoader);
         }
     }
 }
