@@ -1,4 +1,6 @@
 ﻿<Solution>
+  <Project Path="YamlDotNet.csproj" />
+  <Project Path="YamlDotNet.Examples.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>
