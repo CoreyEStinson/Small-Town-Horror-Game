@@ -23,7 +23,7 @@ public class CameraController : MonoBehaviour
     private void LateUpdate()
     {
         transform.position = Vector3.SmoothDamp(
-            transform.position,
+            transform.position, 
             player.position + offset,
             ref currentVelocity,
             smoothTime
