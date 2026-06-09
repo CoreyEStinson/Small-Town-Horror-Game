@@ -24,6 +24,7 @@ conversations:
     priority: 200
     requiresFlags:
       - saw_saul_part_1
+      - saw_bayker_part_1
     setFlags:
       - saw_bayker_part_2
     lines:

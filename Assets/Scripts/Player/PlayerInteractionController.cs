@@ -59,7 +59,7 @@ public sealed class PlayerInteractionController : MonoBehaviour
     {
         if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
         {
-            dialogueRunner.Advance();
+            dialogueRunner.HandleAdvanceInput();
             return;
         }
 

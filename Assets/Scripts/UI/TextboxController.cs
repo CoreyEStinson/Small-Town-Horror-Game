@@ -14,6 +14,7 @@ public sealed class TextboxController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI speakerText;
     [SerializeField] private TextMeshProUGUI bodyText;
     [SerializeField] private Image portrait;
+    [SerializeField] private DialogueTypewriter typewriter;
 
     [Header("Choice UI")]
     [SerializeField] private Transform choicesContainer;
@@ -34,12 +35,22 @@ public sealed class TextboxController : MonoBehaviour
     /// Gets whether the textbox UI is currently visible.
     /// </summary>
     public bool IsOpen => gameObject.activeSelf;
+    public bool IsTyping => typewriter != null && typewriter.IsTyping;
 
     /// <summary>
     /// Initializes the textbox by hiding it on scene load.
     /// </summary>
     private void Awake()
     {
+        if (typewriter == null && bodyText != null)
+        {
+            typewriter = bodyText.GetComponent<DialogueTypewriter>();
+            if (typewriter == null)
+            {
+                typewriter = bodyText.gameObject.AddComponent<DialogueTypewriter>();
+            }
+        }
+
         Hide();
     }
 
@@ -90,7 +101,7 @@ public sealed class TextboxController : MonoBehaviour
     {
         ClearChoices();
         SetSpeakerText(string.Empty);
-        SetBodyText(string.Empty);
+        ClearBodyText();
         SetPortraitImage(null);
         gameObject.SetActive(false);
     }
@@ -113,10 +124,21 @@ public sealed class TextboxController : MonoBehaviour
     /// <param name="text">The dialogue text to display. Empty string if null.</param>
     public void SetBodyText(string text)
     {
+        if (typewriter != null)
+        {
+            typewriter.Play(text);
+            return;
+        }
+
         if (bodyText != null)
         {
             bodyText.text = text ?? string.Empty;
         }
+    }
+
+    public void CompleteTyping()
+    {
+        typewriter?.Complete();
     }
 
     /// <summary>
@@ -258,5 +280,19 @@ public sealed class TextboxController : MonoBehaviour
         }
 
         spawnedChoiceButtons.Clear();
+    }
+
+    private void ClearBodyText()
+    {
+        if (typewriter != null)
+        {
+            typewriter.StopAndClear();
+            return;
+        }
+
+        if (bodyText != null)
+        {
+            bodyText.text = string.Empty;
+        }
     }
 }

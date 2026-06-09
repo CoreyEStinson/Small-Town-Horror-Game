@@ -19,6 +19,9 @@ public class MovementController : MonoBehaviour
     [Header("Input")]
     public InputActionAsset inputActions; // Reference to the input actions asset
 
+    [Header("Dialogue")]
+    [SerializeField] private DialogueRunner dialogueRunner;
+
     // Private fields
     private CharacterController controller; // Unity's camera controller
     private Transform playerTransform; // Refrence to player's transform
@@ -33,6 +36,14 @@ public class MovementController : MonoBehaviour
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction sprintAction;
+
+    private void Awake()
+    {
+        if (dialogueRunner == null)
+        {
+            dialogueRunner = FindAnyObjectByType<DialogueRunner>();
+        }
+    }
 
     void Start()
     {
@@ -104,9 +115,15 @@ public class MovementController : MonoBehaviour
         }
 
         // Get movement input
-        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        bool isDialogueOpen = dialogueRunner != null && dialogueRunner.IsDialogueOpen;
+        Vector2 moveInput = isDialogueOpen ? Vector2.zero : moveAction.ReadValue<Vector2>();
 
         // Set speed based on sprint state
+        if (isDialogueOpen)
+        {
+            isSprinting = false;
+        }
+
         currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
 
         // Calculate movement direction relative to camera
@@ -140,6 +157,11 @@ public class MovementController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
+        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
+        {
+            return;
+        }
+
         // Jump when Jump action is triggered and grounded
         if (isGrounded)
         {
@@ -149,6 +171,12 @@ public class MovementController : MonoBehaviour
 
     private void OnSprintStarted(InputAction.CallbackContext context)
     {
+        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
+        {
+            isSprinting = false;
+            return;
+        }
+
         isSprinting = true;
     }
 

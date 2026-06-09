@@ -1,0 +1,54 @@
+npcId: click_clack
+displayName: Click Clack
+portrait: ClickClack
+conversations:
+  - id: intro_part_1
+    priority: 100
+    requiresFlags: []
+    setFlags:
+      - saw_click_part_1
+    lines:
+      - bodyText: "[INTERIOR: A strange room high in the clouds]"
+      - bodyText: "[We're met by mildew and the scent of old books]"
+      - bodyText: "[Has our hero come to the wrong place?]"
+        choices:
+          - choiceText: "*Nod*"
+            nextLineId: yes_1
+          - choiceText: "*Shake Head*"
+            nextLineId: no_1
+      
+      - lineId: yes_1
+        bodyText: "Our hero Godpoke is SURE they're in the right place. And then...]"
+        nextLineId: lights
+
+      - lineId: no_1
+        bodyText: "[Confused, our hero turns to leave. When suddently...]"
+        nextLineId: lights
+
+      - lineId: lights
+        bodyText: "[LIGHTS UP to reveal-]"
+      - bodyText: "[CLICK CLACK HIMSELF- THE TREMENDOUS GOD OF STORYTELLING]"
+      - bodyText: "..FURIOUSLY editing a brand new episode of the HIT SHOW \"OH PARTNER MINE!\""
+      - bodyText: "Is our little protagonist surprised by what they see?"
+        choices:
+          - choiceText: "*Nod*"
+            nextLineId: yes_2
+          - choiceText: "*Shake Head*"
+            nextLineId: no_2
+
+      
+      - lineId: yes_2
+        bodyText: "Our tiny hero looks up and blinks as if to say, \"THAT'S Click Clack?\""
+      - bodyText: "\"He's so much BIGGER than I would have expected!\""
+        nextLineId: introduction
+
+      - lineId: no_2
+        bodyText: "Our tiny hero is unphased by the great Click Clack-"
+      - bodyText: "Despite the god's STUPLENDERENDOUS SIZE."
+        nextLineId: introduction
+
+      - lineId: introduction
+        bodyText: "I'm Click Clack! The God of Storytelling. I edit the story o' this world."
+      - bodyText: "It's a lot of work! There are so many characters..."
+      - bodyText: "Of course... none can hold a candle to my darling chrysanthemum."
+      - bodyText: "THESPIUS! Oh my Best BEST Friend, how you make work-life so sweet!"

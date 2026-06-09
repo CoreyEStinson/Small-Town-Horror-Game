@@ -101,6 +101,22 @@ public sealed class DialogueRunner : MonoBehaviour
         return ShowNextLineFromCurrent();
     }
 
+    public bool HandleAdvanceInput()
+    {
+        if (!IsDialogueOpen)
+        {
+            return false;
+        }
+
+        if (textbox != null && textbox.IsTyping)
+        {
+            textbox.CompleteTyping();
+            return true;
+        }
+
+        return Advance();
+    }
+
     public void EndDialogue()
     {
         currentLine = null;
