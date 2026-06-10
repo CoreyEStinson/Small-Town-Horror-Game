@@ -16,6 +16,10 @@ conversations:
             nextLineId: yes_1
           - choiceText: "*Shake Head*"
             nextLineId: no_1
+          - choiceText: "*Stare Blankly*"
+            requiredConditions:
+              - saw_saul_part_1
+            nextLineId: lights
       
       - lineId: yes_1
         bodyText: "Our hero Godpoke is SURE they're in the right place. And then...]"

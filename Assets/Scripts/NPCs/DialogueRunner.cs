@@ -56,6 +56,7 @@ public sealed class DialogueRunner : MonoBehaviour
 
         if (loader.DialogueData == null)
         {
+            Debug.LogWarning("Loading dialogue data");
             loader.Load();
         }
 

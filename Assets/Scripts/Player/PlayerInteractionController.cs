@@ -8,8 +8,9 @@ public sealed class PlayerInteractionController : MonoBehaviour
     [SerializeField] private InputActionAsset inputActions;
 
     [Header("Interaction")]
-    [SerializeField] private float maxInteractionDistance = 1f;
     [SerializeField] private DialogueRunner dialogueRunner;
+    [SerializeField] private NpcInteraction currentInteractableNpc;
+    [SerializeField] private InteractionPromptController interactionText;
 
     private InputAction interactAction;
 
@@ -43,8 +44,8 @@ public sealed class PlayerInteractionController : MonoBehaviour
             return;
         }
 
-        interactAction.started += OnInteract;
         playerActionMap.Enable();
+        interactAction.started += OnInteract;
     }
 
     private void OnDestroy()
@@ -57,41 +58,43 @@ public sealed class PlayerInteractionController : MonoBehaviour
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
+        if (dialogueRunner == null)
+        {
+            Debug.LogWarning("PlayerInteractionController.OnInteract: DialogueRunner not found!");
+            return;
+        }
+
+        if (dialogueRunner.IsDialogueOpen)
         {
             dialogueRunner.HandleAdvanceInput();
             return;
         }
 
-        GameObject[] npcs = GameObject.FindGameObjectsWithTag("NPC");
-        if (npcs.Length == 0)
+        if (currentInteractableNpc != null)
         {
-            return;
-        }
+            bool opened = dialogueRunner.BeginDialogue(currentInteractableNpc.dialogueLoader);
+            Debug.Log("BeginDialogue returned: " + opened);
+            Debug.Log("IsDialogueOpen after BeginDialogue: " + dialogueRunner.IsDialogueOpen);
 
-        DialogueYamlLoader nearestLoader = null;
-        float nearestDistSqr = float.MaxValue;
-        Vector3 pos = transform.position;
-
-        foreach (GameObject npc in npcs)
-        {
-            DialogueYamlLoader loader = npc.GetComponent<DialogueYamlLoader>();
-            if (loader == null)
+            if (opened)
             {
-                continue;
+                interactionText.Hide();
             }
-
-            float d = (npc.transform.position - pos).sqrMagnitude;
-            if (d < nearestDistSqr)
-            {
-                nearestDistSqr = d;
-                nearestLoader = loader;
-            }
-        }
-
-        if (nearestLoader != null && nearestDistSqr <= Math.Pow(maxInteractionDistance, 2))
-        {
-            dialogueRunner?.BeginDialogue(nearestLoader);
         }
     }
+
+    // TODO: Does not handle the situation where there are multiple NPCs with overlaping collisions
+    // Should choose the closest NPC over the currently overlaping ones
+    public void EnterInteractRange(NpcInteraction npcInteraction)
+    {
+        currentInteractableNpc = npcInteraction;
+        interactionText.Show(npcInteraction.promptText);
+    }
+
+    public void ExitInteractRange(NpcInteraction npcInteraction)
+    {
+        currentInteractableNpc = null;
+        interactionText.Hide();
+    }
+
 }

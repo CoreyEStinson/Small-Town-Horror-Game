@@ -50,7 +50,6 @@ public sealed class TextboxController : MonoBehaviour
                 typewriter = bodyText.gameObject.AddComponent<DialogueTypewriter>();
             }
         }
-
         Hide();
     }
 
