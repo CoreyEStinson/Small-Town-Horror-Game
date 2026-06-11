@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public sealed class DialogueFlagStore : MonoBehaviour
@@ -42,5 +44,12 @@ public sealed class DialogueFlagStore : MonoBehaviour
                 flags.Add(flag);
             }
         }
+    }
+
+    public List<string> GetAllFlags()
+    {
+        List<string> allFlags = flags.ToList();
+        allFlags.Sort();
+        return allFlags;
     }
 }
