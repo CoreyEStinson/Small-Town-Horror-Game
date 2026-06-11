@@ -12,17 +12,17 @@ public class InteractionPromptController : MonoBehaviour
             interactionText = GetComponent<TextMeshProUGUI>();
         }    
 
-        gameObject.SetActive(false);
+        interactionText.gameObject.SetActive(false);
     }
 
     public void Show(string text)
     {
         interactionText.text = text;
-        gameObject.SetActive(true);
+        interactionText.gameObject.SetActive(true);
     }
 
     public void Hide()
     {
-        gameObject.SetActive(false);
+        interactionText.gameObject.SetActive(false);
     }
 }

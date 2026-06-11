@@ -15,6 +15,7 @@ public sealed class TextboxController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI bodyText;
     [SerializeField] private Image portrait;
     [SerializeField] private DialogueTypewriter typewriter;
+    [SerializeField] private GameObject textboxObject;
 
     [Header("Choice UI")]
     [SerializeField] private Transform choicesContainer;
@@ -34,7 +35,7 @@ public sealed class TextboxController : MonoBehaviour
     /// <summary>
     /// Gets whether the textbox UI is currently visible.
     /// </summary>
-    public bool IsOpen => gameObject.activeSelf;
+    public bool IsOpen => textboxObject.activeSelf;
     public bool IsTyping => typewriter != null && typewriter.IsTyping;
 
     /// <summary>
@@ -71,7 +72,7 @@ public sealed class TextboxController : MonoBehaviour
             throw new ArgumentNullException(nameof(line));
         }
 
-        gameObject.SetActive(true);
+        textboxObject.SetActive(true);
         SetSpeakerText(ResolveSpeakerName(npcData, line));
         SetBodyText(line.bodyText);
         SetPortraitImage(ResolvePortrait(npcData, line));
@@ -86,7 +87,7 @@ public sealed class TextboxController : MonoBehaviour
     /// <param name="speakerPortrait">Optional portrait sprite for the speaker. Uses fallback if null.</param>
     public void ShowMessage(string speakerName, string message, Sprite speakerPortrait = null)
     {
-        gameObject.SetActive(true);
+        textboxObject.SetActive(true);
         SetSpeakerText(speakerName);
         SetBodyText(message);
         SetPortraitImage(speakerPortrait);
@@ -102,7 +103,7 @@ public sealed class TextboxController : MonoBehaviour
         SetSpeakerText(string.Empty);
         ClearBodyText();
         SetPortraitImage(null);
-        gameObject.SetActive(false);
+        textboxObject.SetActive(false);
     }
 
     /// <summary>

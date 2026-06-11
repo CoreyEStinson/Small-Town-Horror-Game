@@ -22,7 +22,7 @@ conversations:
             nextLineId: lights
       
       - lineId: yes_1
-        bodyText: "Our hero Godpoke is SURE they're in the right place. And then...]"
+        bodyText: "Our hero <color=#ff0000>Godpoke</color> is <b>SURE</b> they're in the right place. And then...]"
         nextLineId: lights
 
       - lineId: no_1
@@ -32,7 +32,7 @@ conversations:
       - lineId: lights
         bodyText: "[LIGHTS UP to reveal-]"
       - bodyText: "[CLICK CLACK HIMSELF- THE TREMENDOUS GOD OF STORYTELLING]"
-      - bodyText: "..FURIOUSLY editing a brand new episode of the HIT SHOW \"OH PARTNER MINE!\""
+      - bodyText: "..FURIOUSLY editing a brand new episode of the HIT SHOW \"<i>OH PARTNER MINE!</i>\""
       - bodyText: "Is our little protagonist surprised by what they see?"
         choices:
           - choiceText: "*Nod*"
@@ -48,11 +48,11 @@ conversations:
 
       - lineId: no_2
         bodyText: "Our tiny hero is unphased by the great Click Clack-"
-      - bodyText: "Despite the god's STUPLENDERENDOUS SIZE."
+      - bodyText: "Despite the god's <b>STUPLENDERENDOUS SIZE</b>."
         nextLineId: introduction
 
       - lineId: introduction
         bodyText: "I'm Click Clack! The God of Storytelling. I edit the story o' this world."
       - bodyText: "It's a lot of work! There are so many characters..."
       - bodyText: "Of course... none can hold a candle to my darling chrysanthemum."
-      - bodyText: "THESPIUS! Oh my Best BEST Friend, how you make work-life so sweet!"
+      - bodyText: "THESPIUS! Oh my Best <b>BEST</b> Friend, how you make work-life so sweet!"
