@@ -73,8 +73,6 @@ public sealed class PlayerInteractionController : MonoBehaviour
         if (currentInteractableNpc != null)
         {
             bool opened = dialogueRunner.BeginDialogue(currentInteractableNpc.dialogueLoader);
-            Debug.Log("BeginDialogue returned: " + opened);
-            Debug.Log("IsDialogueOpen after BeginDialogue: " + dialogueRunner.IsDialogueOpen);
 
             if (opened)
             {

@@ -34,13 +34,13 @@ public sealed class DialogueTextEffectParser
 
                 string tagText = rawText.Substring(i, closeIndex - i + 1);
                 
-                if (string.Equals(tagText, "<shake>", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(tagText, "<wave>", StringComparison.OrdinalIgnoreCase))
                 {
-                    HandleOpenTag("shake", state);
+                    HandleOpenTag("wave", state);
                 }
-                else if (string.Equals(tagText, "</shake>", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(tagText, "</wave>", StringComparison.OrdinalIgnoreCase))
                 {
-                    HandleCloseTag("shake", state);
+                    HandleCloseTag("wave", state);
                 }
                 else
                 {
@@ -55,12 +55,12 @@ public sealed class DialogueTextEffectParser
             i++;
         }
 
-        // Any unclosed shake tags
+        // Any unclosed wave tags
         while (state.openEffects.Count > 0)
         {
             OpenEffect dangling = state.openEffects.Pop();
-            Warn($"Unclosed <shake> tag starting at visible char {dangling.startVisibleCharacterIndex}." 
-            + "Showing text without shake for unfinished span", state);
+            Warn($"Unclosed <wave> tag starting at visible char {dangling.startVisibleCharacterIndex}."
+            + "Showing text without wave for unfinished span", state);
         }
 
         return new DialogueProcessedText(
@@ -72,7 +72,7 @@ public sealed class DialogueTextEffectParser
 
     private void HandleOpenTag(string tagName, ParserState state)
     {
-        if (tagName != "shake")
+        if (tagName != "wave")
         {
             Warn($"Unsupported custom tag <{tagName}>.", state);
             return;
@@ -80,23 +80,23 @@ public sealed class DialogueTextEffectParser
 
         foreach (OpenEffect open in state.openEffects)
         {
-            if (open.effectType == DialogueTextEffectType.Shake)
+            if (open.effectType == DialogueTextEffectType.Wave)
             {
-                Warn("Nested <shake> tags are not supported. Ignoring inner <shake>", state);
+                Warn("Nested <wave> tags are not supported. Ignoring inner <wave>", state);
                 return;
             }
         }
 
         state.openEffects.Push(new OpenEffect
         {
-            effectType = DialogueTextEffectType.Shake,
+            effectType = DialogueTextEffectType.Wave,
             startVisibleCharacterIndex = state.visibleCharacterCount
         });
     }
 
     private void HandleCloseTag(string tagName, ParserState state)
     {
-        if (tagName != "shake")
+        if (tagName != "wave")
         {
             Warn($"Unsupported custom closing tag </{tagName}>.", state);
             return;
@@ -104,28 +104,28 @@ public sealed class DialogueTextEffectParser
 
         if (state.openEffects.Count == 0)
         {
-            Warn("Found </shake> without a matching <shake>. Ignoring it.", state);
+            Warn("Found </wave> without a matching <wave>. Ignoring it.", state);
             return;
         }
 
         OpenEffect open = state.openEffects.Pop();
 
-        if (open.effectType != DialogueTextEffectType.Shake)
+        if (open.effectType != DialogueTextEffectType.Wave)
         {
-            Warn("Mismatched closing </shake> tag", state);
+            Warn("Mismatched closing </wave> tag", state);
             return;
         }
 
         int length = state.visibleCharacterCount - open.startVisibleCharacterIndex;
         if (length <= 0)
         {
-            Warn("Empty <shake></shake> span found. Ignoring it.", state);
+            Warn("Empty <wave></wave> span found. Ignoring it.", state);
             return;
         }
 
         state.spans.Add(new DialogueTextEffectSpan
         {
-            effectType = DialogueTextEffectType.Shake,
+            effectType = DialogueTextEffectType.Wave,
             startVisibleCharacterIndex = open.startVisibleCharacterIndex,
             length = length
         });
@@ -165,7 +165,7 @@ public sealed class DialogueTextEffectParser
 
 public enum DialogueTextEffectType
 {
-    Shake
+    Wave
 }
 
 public struct DialogueProcessedText

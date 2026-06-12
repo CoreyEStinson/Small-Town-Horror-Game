@@ -2035,8 +2035,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueTypewriter
   targetText: {fileID: 1278119023}
   baseCharacterDelay: 0.025
-  shakeAmplitude: 2
-  shakeFrequency: 10
+  waveAmplitude: 2
+  waveFrequency: 10
 --- !u!1 &1398277629
 GameObject:
   m_ObjectHideFlags: 0

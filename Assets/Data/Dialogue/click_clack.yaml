@@ -14,7 +14,7 @@ conversations:
         choices:
           - choiceText: "*Nod*"
             nextLineId: yes_1
-          - choiceText: "*Shake Head*"
+          - choiceText: "*Wave Head*"
             nextLineId: no_1
           - choiceText: "*Stare Blankly*"
             requiredConditions:
@@ -22,7 +22,7 @@ conversations:
             nextLineId: lights
       
       - lineId: yes_1
-        bodyText: "Our hero <color=#ff0000>Godpoke</color> is <shake>SURE</shake> they're in the right place. And then...]"
+        bodyText: "Our hero <color=#ff0000>Godpoke</color> is <wave>SURE</wave> they're in the right place. And then...]"
         nextLineId: lights
 
       - lineId: no_1
@@ -31,19 +31,19 @@ conversations:
 
       - lineId: lights
         bodyText: "[LIGHTS UP to reveal-]"
-      - bodyText: "[CLICK CLACK HIMSELF- <shake>THE TREMENDOUS GOD OF STORYTELLING]</shake>"
+      - bodyText: "[CLICK CLACK HIMSELF- <wave>THE TREMENDOUS GOD OF STORYTELLING]</wave>"
       - bodyText: "..FURIOUSLY editing a brand new episode of the HIT SHOW \"<i>OH PARTNER MINE!</i>\""
-      - bodyText: "Is our little <shake>protagonist</shake> surprised by what they see?"
+      - bodyText: "Is our little <wave>protagonist</wave> surprised by what they see?"
         choices:
           - choiceText: "*Nod*"
             nextLineId: yes_2
-          - choiceText: "*Shake Head*"
+          - choiceText: "*Wave Head*"
             nextLineId: no_2
 
       
       - lineId: yes_2
         bodyText: "Our tiny hero looks up and blinks as if to say, \"THAT'S Click Clack?\""
-      - bodyText: "\"He's so much <shake>BIGGER</shake> than I would have expected!\""
+      - bodyText: "\"He's so much <wave>BIGGER</wave> than I would have expected!\""
         nextLineId: introduction
 
       - lineId: no_2

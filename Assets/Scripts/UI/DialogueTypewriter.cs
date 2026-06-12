@@ -15,9 +15,9 @@ public sealed class DialogueTypewriter : MonoBehaviour
     private TMP_MeshInfo[] baseMeshData;
     private int lastVisibleCharacterCount = -1;
 
-    [Header("Text Shake Effect")]
-    [SerializeField] private float shakeAmplitude = 3f;
-    [SerializeField] private float shakeFrequency = 20f;
+    [Header("Text Wave Effect")]
+    [SerializeField] private float waveAmplitude = 3f;
+    [SerializeField] private float waveFrequency = 20f;
 
     public bool IsTyping { get; private set; }
 
@@ -235,7 +235,7 @@ public sealed class DialogueTypewriter : MonoBehaviour
             for (int spanIndex = 0; spanIndex < processedText.effectSpans.Count; spanIndex++)
             {
                 DialogueTextEffectSpan span = processedText.effectSpans[spanIndex];
-                if (span.effectType != DialogueTextEffectType.Shake) continue;
+                if (span.effectType != DialogueTextEffectType.Wave) continue;
 
                 int start = span.startVisibleCharacterIndex;
                 int end = start + span.length;
@@ -245,7 +245,7 @@ public sealed class DialogueTypewriter : MonoBehaviour
                     if (charIndex >= targetText.maxVisibleCharacters) break;
                     if (charIndex >= textInfo.characterCount) break;
 
-                    ApplyShakeToCharacter(textInfo, copyOfVertices, charIndex);
+                    ApplyWaveToCharacter(textInfo, copyOfVertices, charIndex);
                 }
             }
 
@@ -259,7 +259,7 @@ public sealed class DialogueTypewriter : MonoBehaviour
         }
     }
 
-    private void ApplyShakeToCharacter(TMP_TextInfo textInfo, Vector3[][] copyOfVertices, int charIndex)
+    private void ApplyWaveToCharacter(TMP_TextInfo textInfo, Vector3[][] copyOfVertices, int charIndex)
     {
         TMP_CharacterInfo charInfo = textInfo.characterInfo[charIndex];
         if (!charInfo.isVisible) return;
@@ -272,8 +272,8 @@ public sealed class DialogueTypewriter : MonoBehaviour
 
         Vector3 charCenter = (sourceVertices[vertexIndex + 0] + sourceVertices[vertexIndex + 2]) / 2f;
 
-        float time = Time.time * shakeFrequency;
-        float y = Mathf.Sin(time + charIndex * 0.53f) * shakeAmplitude;
+        float time = Time.time * waveFrequency;
+        float y = Mathf.Sin(time + charIndex * 0.53f) * waveAmplitude;
         Vector3 offset = new Vector3(0f, y, 0f);
 
         destinationVertices[vertexIndex + 0] = sourceVertices[vertexIndex + 0] - charCenter + charCenter + offset;
