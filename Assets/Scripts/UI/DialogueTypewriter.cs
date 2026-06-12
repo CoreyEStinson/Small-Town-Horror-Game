@@ -8,6 +8,16 @@ public sealed class DialogueTypewriter : MonoBehaviour
     [SerializeField] private float baseCharacterDelay = 0.025f;
 
     private Coroutine typingCoroutine;
+    private Coroutine animationCoroutine;
+    private DialogueTextEffectParser textEffectParser;
+    private DialogueProcessedText processedText;
+    private bool hasTextChanged;
+    private TMP_MeshInfo[] baseMeshData;
+    private int lastVisibleCharacterCount = -1;
+
+    [Header("Text Shake Effect")]
+    [SerializeField] private float shakeAmplitude = 3f;
+    [SerializeField] private float shakeFrequency = 20f;
 
     public bool IsTyping { get; private set; }
 
@@ -16,6 +26,25 @@ public sealed class DialogueTypewriter : MonoBehaviour
         if (targetText == null)
         {
             targetText = GetComponent<TextMeshProUGUI>();
+        }
+
+        textEffectParser = new DialogueTextEffectParser();
+        processedText = new DialogueProcessedText();
+    }
+
+    private void OnEnable()
+    {
+        TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTextChanged);
+    }
+
+    private void OnDisable()
+    {
+        TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(OnTextChanged);
+
+        if (animationCoroutine != null)
+        {
+            StopCoroutine(animationCoroutine);
+            animationCoroutine = null;
         }
     }
 
@@ -28,9 +57,18 @@ public sealed class DialogueTypewriter : MonoBehaviour
 
         StopCurrentTyping();
 
-        targetText.text = text ?? string.Empty;
+        processedText = textEffectParser.Parse(text);
+
+        for (int i = 0; i < processedText.warnings.Count; i++)
+        {
+            Debug.LogWarning(processedText.warnings[i]);
+        }
+
+        targetText.text = processedText.processedText ?? string.Empty;
         targetText.maxVisibleCharacters = 0;
         targetText.ForceMeshUpdate();
+        hasTextChanged = true;
+        lastVisibleCharacterCount = targetText.maxVisibleCharacters;
 
         int visibleCharacterCount = targetText.textInfo.characterCount;
         if (visibleCharacterCount == 0)
@@ -40,7 +78,12 @@ public sealed class DialogueTypewriter : MonoBehaviour
             return;
         }
 
-        typingCoroutine = StartCoroutine(TypeText(text ?? string.Empty, visibleCharacterCount));
+        if (animationCoroutine == null)
+        {
+            animationCoroutine = StartCoroutine(AnimateTextEffects());
+        }
+
+        typingCoroutine = StartCoroutine(TypeText(processedText.processedText ?? string.Empty, visibleCharacterCount));
     }
 
     public void Complete()
@@ -65,16 +108,36 @@ public sealed class DialogueTypewriter : MonoBehaviour
 
         targetText.text = string.Empty;
         targetText.maxVisibleCharacters = int.MaxValue;
+        processedText = new DialogueProcessedText();
+        hasTextChanged = true;
+        baseMeshData = null;
+        lastVisibleCharacterCount = -1;
     }
 
     private IEnumerator TypeText(string sourceText, int visibleCharacterCount)
     {
         IsTyping = true;
         int visibleCount = 0;
+        bool insideTag = false;
 
         for (int i = 0; i < sourceText.Length; i++)
         {
             char currentCharacter = sourceText[i];
+
+            if (currentCharacter == '<')
+            {
+                insideTag = true;
+            }
+
+            if (insideTag)
+            {
+                if (currentCharacter == '>')
+                {
+                    insideTag = false;
+                }
+
+                continue;
+            }
 
             if (char.IsHighSurrogate(currentCharacter))
             {
@@ -83,6 +146,11 @@ public sealed class DialogueTypewriter : MonoBehaviour
 
             visibleCount++;
             targetText.maxVisibleCharacters = Mathf.Min(visibleCount, visibleCharacterCount);
+            if (targetText.maxVisibleCharacters != lastVisibleCharacterCount)
+            {
+                hasTextChanged = true;
+                lastVisibleCharacterCount = targetText.maxVisibleCharacters;
+            }
 
             float delay = GetDelayForCharacter(currentCharacter);
             if (delay <= 0f)
@@ -99,10 +167,122 @@ public sealed class DialogueTypewriter : MonoBehaviour
         }
 
         targetText.maxVisibleCharacters = int.MaxValue;
+        hasTextChanged = true;
+        lastVisibleCharacterCount = targetText.maxVisibleCharacters;
         typingCoroutine = null;
         IsTyping = false;
     }
 
+    private IEnumerator AnimateTextEffects()
+    {
+        if (targetText == null)
+        {
+            yield break;
+        }
+
+        targetText.ForceMeshUpdate();
+
+        TMP_TextInfo textInfo = targetText.textInfo;
+        Vector3[][] copyOfVertices = new Vector3[0][];
+        hasTextChanged = true;
+
+        while (true)
+        {
+            if (hasTextChanged)
+            {
+                targetText.ForceMeshUpdate();
+                textInfo = targetText.textInfo;
+                baseMeshData = textInfo.CopyMeshInfoVertexData();
+
+                if (copyOfVertices.Length < textInfo.meshInfo.Length)
+                {
+                    copyOfVertices = new Vector3[textInfo.meshInfo.Length][];
+                }
+
+                for (int i = 0; i < textInfo.meshInfo.Length; i++)
+                {
+                    int length = textInfo.meshInfo[i].vertices.Length;
+                    copyOfVertices[i] = new Vector3[length];
+                }
+
+                hasTextChanged = false;
+            }
+
+            int characterCount = textInfo.characterCount;
+            if (characterCount == 0
+                || processedText.effectSpans == null
+                || processedText.effectSpans.Count == 0
+                || string.IsNullOrEmpty(targetText.text)
+                || targetText.maxVisibleCharacters <= 0
+                || baseMeshData == null)
+            {
+                yield return null;
+                continue;
+            }
+
+            for (int i = 0; i < textInfo.meshInfo.Length; i++)
+            {
+                Vector3[] sourceVertices = baseMeshData[i].vertices;
+                Vector3[] destinationVertices = copyOfVertices[i];
+
+                int copyLength = Mathf.Min(sourceVertices.Length, destinationVertices.Length);
+                for (int j = 0; j < copyLength; j++)
+                {
+                    destinationVertices[j] = sourceVertices[j];
+                }
+            }
+
+            for (int spanIndex = 0; spanIndex < processedText.effectSpans.Count; spanIndex++)
+            {
+                DialogueTextEffectSpan span = processedText.effectSpans[spanIndex];
+                if (span.effectType != DialogueTextEffectType.Shake) continue;
+
+                int start = span.startVisibleCharacterIndex;
+                int end = start + span.length;
+
+                for (int charIndex = start; charIndex < end; charIndex++)
+                {
+                    if (charIndex >= targetText.maxVisibleCharacters) break;
+                    if (charIndex >= textInfo.characterCount) break;
+
+                    ApplyShakeToCharacter(textInfo, copyOfVertices, charIndex);
+                }
+            }
+
+            for (int i = 0; i < textInfo.meshInfo.Length; i++)
+            {
+                textInfo.meshInfo[i].mesh.vertices = copyOfVertices[i];
+                targetText.UpdateGeometry(textInfo.meshInfo[i].mesh, i);
+            }
+
+            yield return null;
+        }
+    }
+
+    private void ApplyShakeToCharacter(TMP_TextInfo textInfo, Vector3[][] copyOfVertices, int charIndex)
+    {
+        TMP_CharacterInfo charInfo = textInfo.characterInfo[charIndex];
+        if (!charInfo.isVisible) return;
+
+        int materialIndex = charInfo.materialReferenceIndex;
+        int vertexIndex = charInfo.vertexIndex;
+
+        Vector3[] sourceVertices = baseMeshData[materialIndex].vertices;
+        Vector3[] destinationVertices = copyOfVertices[materialIndex];
+
+        Vector3 charCenter = (sourceVertices[vertexIndex + 0] + sourceVertices[vertexIndex + 2]) / 2f;
+
+        float time = Time.time * shakeFrequency;
+        float y = Mathf.Sin(time + charIndex * 0.53f) * shakeAmplitude;
+        Vector3 offset = new Vector3(0f, y, 0f);
+
+        destinationVertices[vertexIndex + 0] = sourceVertices[vertexIndex + 0] - charCenter + charCenter + offset;
+        destinationVertices[vertexIndex + 1] = sourceVertices[vertexIndex + 1] - charCenter + charCenter + offset;
+        destinationVertices[vertexIndex + 2] = sourceVertices[vertexIndex + 2] - charCenter + charCenter + offset;
+        destinationVertices[vertexIndex + 3] = sourceVertices[vertexIndex + 3] - charCenter + charCenter + offset;
+    }
+
+    // Planned to have different delays for punctuation 
     private float GetDelayForCharacter(char currentCharacter)
     {
         if (currentCharacter == '\r')
@@ -122,5 +302,13 @@ public sealed class DialogueTypewriter : MonoBehaviour
         }
 
         IsTyping = false;
+    }
+
+    private void OnTextChanged(Object changedObject)
+    {
+        if (changedObject == targetText)
+        {
+            hasTextChanged = true;
+        }
     }
 }

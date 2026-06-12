@@ -507,6 +507,7 @@ Transform:
   - {fileID: 1582213495}
   - {fileID: 346428307}
   - {fileID: 898093982}
+  - {fileID: 1373824481}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &220346595
@@ -1450,7 +1451,7 @@ MonoBehaviour:
   speakerText: {fileID: 56849744}
   bodyText: {fileID: 1278119023}
   portrait: {fileID: 1863241341}
-  typewriter: {fileID: 1278119025}
+  typewriter: {fileID: 1373824482}
   textboxObject: {fileID: 1985136633}
   choicesContainer: {fileID: 1068364370}
   choiceButtonPrefab: {fileID: 6071244297625079784, guid: 5d699f97faab4d34c874ed1839cef8f7, type: 3}
@@ -1861,7 +1862,6 @@ GameObject:
   - component: {fileID: 1278119022}
   - component: {fileID: 1278119024}
   - component: {fileID: 1278119023}
-  - component: {fileID: 1278119025}
   m_Layer: 5
   m_Name: BodyText
   m_TagString: Untagged
@@ -1989,13 +1989,45 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1278119021}
   m_CullTransparentMesh: 1
---- !u!114 &1278119025
+--- !u!1 &1373824480
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1373824481}
+  - component: {fileID: 1373824482}
+  m_Layer: 0
+  m_Name: DialogueTypewriter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1373824481
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1373824480}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 193464862}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1373824482
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1278119021}
+  m_GameObject: {fileID: 1373824480}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 14d81fd5df56c2743923905fe426917e, type: 3}
@@ -2003,6 +2035,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueTypewriter
   targetText: {fileID: 1278119023}
   baseCharacterDelay: 0.025
+  shakeAmplitude: 2
+  shakeFrequency: 10
 --- !u!1 &1398277629
 GameObject:
   m_ObjectHideFlags: 0

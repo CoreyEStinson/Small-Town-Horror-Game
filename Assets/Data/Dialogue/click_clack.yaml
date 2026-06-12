@@ -22,7 +22,7 @@ conversations:
             nextLineId: lights
       
       - lineId: yes_1
-        bodyText: "Our hero <color=#ff0000>Godpoke</color> is <b>SURE</b> they're in the right place. And then...]"
+        bodyText: "Our hero <color=#ff0000>Godpoke</color> is <shake>SURE</shake> they're in the right place. And then...]"
         nextLineId: lights
 
       - lineId: no_1
@@ -31,9 +31,9 @@ conversations:
 
       - lineId: lights
         bodyText: "[LIGHTS UP to reveal-]"
-      - bodyText: "[CLICK CLACK HIMSELF- THE TREMENDOUS GOD OF STORYTELLING]"
+      - bodyText: "[CLICK CLACK HIMSELF- <shake>THE TREMENDOUS GOD OF STORYTELLING]</shake>"
       - bodyText: "..FURIOUSLY editing a brand new episode of the HIT SHOW \"<i>OH PARTNER MINE!</i>\""
-      - bodyText: "Is our little protagonist surprised by what they see?"
+      - bodyText: "Is our little <shake>protagonist</shake> surprised by what they see?"
         choices:
           - choiceText: "*Nod*"
             nextLineId: yes_2
@@ -43,7 +43,7 @@ conversations:
       
       - lineId: yes_2
         bodyText: "Our tiny hero looks up and blinks as if to say, \"THAT'S Click Clack?\""
-      - bodyText: "\"He's so much BIGGER than I would have expected!\""
+      - bodyText: "\"He's so much <shake>BIGGER</shake> than I would have expected!\""
         nextLineId: introduction
 
       - lineId: no_2
