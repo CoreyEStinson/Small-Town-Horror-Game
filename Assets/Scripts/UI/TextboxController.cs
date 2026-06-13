@@ -77,6 +77,8 @@ public sealed class TextboxController : MonoBehaviour
         SetBodyText(line.bodyText);
         SetPortraitImage(ResolvePortrait(npcData, line));
         RenderChoices(line.choices);
+
+        CameraController.Instance.EnterDialogueCameraMode();
     }
 
     /// <summary>
@@ -92,6 +94,8 @@ public sealed class TextboxController : MonoBehaviour
         SetBodyText(message);
         SetPortraitImage(speakerPortrait);
         ClearChoices();
+
+        CameraController.Instance.EnterDialogueCameraMode();
     }
 
     /// <summary>
@@ -104,6 +108,8 @@ public sealed class TextboxController : MonoBehaviour
         ClearBodyText();
         SetPortraitImage(null);
         textboxObject.SetActive(false);
+
+        CameraController.Instance.ExitDialogueCameraMode();
     }
 
     /// <summary>
