@@ -3,7 +3,7 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [SerializeField] private Transform player;
-    [SerializeField] private Camera camera;
+    [SerializeField] private new Camera camera;
 
     [SerializeField] private float smoothTime = 0.075f;
     [SerializeField] private Vector3 baseOffset = new Vector3(0, 1, -1.5f);

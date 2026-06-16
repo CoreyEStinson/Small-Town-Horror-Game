@@ -1,0 +1,116 @@
+npcId: ms_mitternacht
+displayName: Miss Mitternacht
+portrait: MsMitternacht
+conversations:
+  - id: first_encounter
+    priority: 100
+    requiresFlags: []
+    setFlags: []
+    lines:
+      - bodyText: "<i>Oh Stars n' Garters, Root and Rear...</i>"
+      - bodyText: "Won't <wave>SOMEONE</wave> lend a god an ear?"
+      - bodyText: "My soul's a-suffering, the <color=#9ad27f>Grove</color> is, too."
+      - bodyText: "What's ol' Mitternacht supposed to do?"
+      - bodyText: "How could our <b>King</b> be so mean?"
+      - bodyText: "To send a vicious letter to this <i>lovely Queen</i>?"
+      - bodyText: "I'm <color=#7c5cff>Night-Incarnate</color>, the junebugs' swarming..."
+      - bodyText: "-so tell me why I feel like <wave>Mourning</wave>!"
+      - bodyText: "<b>King's</b> tearing all the Grove apart! And it's liable..."
+      - bodyText: "-to break my heart!"
+      - bodyText: "Oh, sweetness! Excuse my rambling, I didn't see your <i>pretty face</i>."
+      - bodyText: "Like a <color=#d6d2ff>moonbeam</color>, you are. A big heart, the way Mitternacht makes 'em."
+      - bodyText: "You're one of mine, aintcha? A mother can always tell."
+      - bodyText: "Hm? My <i>rhymin'</i>?"
+      - bodyText: "Why now, it's nothing! I'm just sobby! A <b>sad old lady</b> needs a hobby."
+      - bodyText: "An entertainin' little thing- To help distract me from my-"
+      - bodyText: "<wave>MY K-I-I-ING!</wave>"
+      - bodyText: "<wave>OH, WHY'D YOU HAVE TO GO AND DO IT?</wave>"
+        choices:
+          - choiceText: "*Nod*"
+            nextLineId: nod_awful_1
+          - choiceText: "*Shake Head*"
+            nextLineId: shake_loved_you_1
+
+      - lineId: nod_awful_1
+        bodyText: "Oh, it's just <b>awful</b>! Just plain hog-awful!"
+        nextLineId: cruel_letter
+
+      - lineId: shake_loved_you_1
+        bodyText: "Oh <b>King</b>, how we all loved you. You brought all us souls closer together!"
+      - bodyText: "You didn't need to betray our trust! Spreading <color=#b22222>lies and filth</color>! Disappearin' like a bandit!"
+      - bodyText: "You were meant to- to join me up here!"
+      - bodyText: "You were s'posed to be a <wave>GOD!</wave>"
+      - bodyText: "Oh, it's just awful! Just plain hog-awful!"
+        nextLineId: cruel_letter
+
+      - lineId: cruel_letter
+        bodyText: "And to write such a <b>cruel letter</b>, saying such awful swill to <i>Miss M.</i>"
+      - bodyText: "Why, what did that snake-in-the-pasture call me? A <color=#b22222>tired old hag</color>?"
+        choices:
+          - choiceText: "*Nod*"
+            nextLineId: nod_ineloquent_1
+          - choiceText: "*Shake Head*"
+            nextLineId: shake_ugly_old_bag_1
+
+      - lineId: nod_ineloquent_1
+        bodyText: "Just plain <i>ineloquent.</i>"
+        nextLineId: soothe_1
+
+      - lineId: shake_ugly_old_bag_1
+        bodyText: "No, it was- King called me a-"
+      - bodyText: "<wave>AN UGLY OLD BAG OF BONES!</wave>"
+      - bodyText: "King was chosen to be the <wave><b>ELOQUENT GOD</b></wave>- such a blessed communicator."
+      - bodyText: "I <wave>NEVER</wave> knew King to use such course language with a lady."
+      - bodyText: "It's just plain <color=#b22222>hurtful</color>!"
+      - bodyText: "Just plain <i>ineloquent.</i>"
+        nextLineId: soothe_1
+
+      - lineId: soothe_1
+        bodyText: "Oh, but <color=#ff9ecf>sugarplum</color>. Talkin' with you makes me feel a mite better."
+      - bodyText: "In my eternity, I've learned nothing soothes the <i>ragged heart</i> like a conversation."
+      - bodyText: "Wouldn't you agree?"
+        choices:
+          - choiceText: "*Nod*"
+            nextLineId: nod_agree_1
+          - choiceText: "*Shake Head*"
+            nextLineId: shake_wait_butterfly_1
+
+      - lineId: nod_agree_1
+        bodyText: "-Wait just a moment, <color=#ffd166>butterfly</color>."
+        nextLineId: megapon_reveal
+
+      - lineId: shake_wait_butterfly_1
+        bodyText: "-Wait just a moment, <color=#ffd166>butterfly</color>."
+        nextLineId: megapon_reveal
+
+      - lineId: megapon_reveal
+        bodyText: "In your hand, <wave>THAT'S</wave>- ...King's Megapon??"
+        choices:
+          - choiceText: "*Nod*"
+            nextLineId: nod_breaks_my_heart_1
+          - choiceText: "*Shake Head*"
+            nextLineId: shake_dont_lie_1
+
+      - lineId: nod_breaks_my_heart_1
+        bodyText: "Oh, to see it in the hands of <i>another</i>... It breaks my heart!"
+        nextLineId: megapon_left
+
+      - lineId: shake_dont_lie_1
+        bodyText: "<wave>DON'T YOU LIE TO MISS MITTERNACHT!</wave> I'm too old for those woundin' words."
+        nextLineId: megapon_right
+
+      - lineId: megapon_left
+        bodyText: "<b>King's</b> given it up for good. Abandoned a life of honest messenger-ing."
+        nextLineId: mourning_end
+
+      - lineId: megapon_right
+        bodyText: "That's <color=#ffd166>King's Megapon</color>! King used it to earn a rightful spot in the heavens."
+        nextLineId: mourning_end
+
+      - lineId: mourning_end
+        bodyText: "And now my <b>King</b>, oh where have you <wave>GONE</wave>?"
+      - bodyText: "You two-timing no-good bucket of scrambled legs. I... I..."
+      - bodyText: "<wave>I MISS YOU-U-U!</wave>"
+      - bodyText: "<wave>OhHHH KING, COME BACK TO US, YOU GOON!</wave>"
+      - bodyText: "I MISS YOU MORE EACH PASSING <wave>MOON</wave>"
+      - bodyText: "<wave>K-I-I-ING!</wave>"
