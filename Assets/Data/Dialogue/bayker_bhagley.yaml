@@ -38,6 +38,7 @@ conversations:
     priority: 300
     requiresFlags:
       - saw_bayker_part_2
+      - picked_up_jam
     setFlags: []
     lines:
       - bodyText: "I haven't seen a Milldreadberry in AGETH... you must have given me the last one..."
