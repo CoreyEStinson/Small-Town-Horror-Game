@@ -389,4 +389,9 @@ public sealed class DialogueRunner : MonoBehaviour
         Debug.LogError("DialogueRunner.FindTextboxController: Found TextboxController(s) but none are in a valid scene.", this);
         return null;
     }
+
+    public void OpenDialogue(DialogueYamlLoader loader)
+    {
+        BeginDialogue(loader);
+    }
 }
