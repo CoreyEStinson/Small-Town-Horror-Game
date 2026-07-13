@@ -25,6 +25,9 @@ public sealed class TextboxController : MonoBehaviour
     [SerializeField] private string portraitResourcesFolder = "Portraits";
     [SerializeField] private Sprite fallbackPortrait;
 
+    [Header("Bark Audio")]
+    [SerializeField] private DialogueBarkLibrary barkLibrary;
+
     private readonly List<Button> spawnedChoiceButtons = new List<Button>();
 
     /// <summary>
@@ -75,6 +78,12 @@ public sealed class TextboxController : MonoBehaviour
         textboxObject.SetActive(true);
         SetSpeakerText(ResolveSpeakerName(npcData, line));
         SetBodyText(line.bodyText);
+        DialogueBarkProfile barkProfile = barkLibrary != null 
+            ? barkLibrary.GetProfile(npcData.npcId)
+            : null;
+
+        typewriter?.SetBarkProfile(barkProfile);
+
         SetPortraitImage(ResolvePortrait(npcData, line));
         RenderChoices(line.choices);
 
@@ -91,6 +100,7 @@ public sealed class TextboxController : MonoBehaviour
     {
         textboxObject.SetActive(true);
         SetSpeakerText(speakerName);
+        typewriter?.SetBarkProfile(null);
         SetBodyText(message);
         SetPortraitImage(speakerPortrait);
         ClearChoices();

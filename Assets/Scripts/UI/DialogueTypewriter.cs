@@ -21,6 +21,12 @@ public sealed class DialogueTypewriter : MonoBehaviour
 
     public bool IsTyping { get; private set; }
 
+    [Header("Dialogue Bark Audio")]
+    [SerializeField] private AudioSource barkAudioSource;
+
+    private DialogueBarkProfile activeBarkProfile;
+    private int charactersSinceLastBark;
+
     private void Awake()
     {
         if (targetText == null)
@@ -94,13 +100,15 @@ public sealed class DialogueTypewriter : MonoBehaviour
         }
 
         StopCurrentTyping();
+        StopBarkAudio();
         targetText.maxVisibleCharacters = int.MaxValue;
     }
 
     public void StopAndClear()
     {
         StopCurrentTyping();
-
+        StopBarkAudio();
+        
         if (targetText == null)
         {
             return;
@@ -145,6 +153,7 @@ public sealed class DialogueTypewriter : MonoBehaviour
             }
 
             visibleCount++;
+            TryPlayBark(currentCharacter);
             targetText.maxVisibleCharacters = Mathf.Min(visibleCount, visibleCharacterCount);
             if (targetText.maxVisibleCharacters != lastVisibleCharacterCount)
             {
@@ -309,6 +318,51 @@ public sealed class DialogueTypewriter : MonoBehaviour
         if (changedObject == targetText)
         {
             hasTextChanged = true;
+        }
+    }
+
+    public void SetBarkProfile(DialogueBarkProfile profile)
+    {
+        activeBarkProfile = profile;
+        charactersSinceLastBark = 0;
+    }
+
+    private void TryPlayBark(char currentCharacter)
+    {
+        if (activeBarkProfile == null
+            || barkAudioSource == null
+            || char.IsWhiteSpace(currentCharacter)
+            || char.IsPunctuation(currentCharacter))
+        {
+            return;
+        }
+
+        charactersSinceLastBark++;
+
+        if (charactersSinceLastBark < activeBarkProfile.CharactersPerBlip)
+        {
+            return;
+        }
+
+        charactersSinceLastBark = 0;
+
+        AudioClip clip = activeBarkProfile.GetRandomClip();
+        if (clip == null)
+        {
+            return;
+        }
+
+        barkAudioSource.pitch = activeBarkProfile.GetRandomPitch();
+        barkAudioSource.PlayOneShot(clip, activeBarkProfile.Volume);
+    }
+
+    private void StopBarkAudio()
+    {
+        charactersSinceLastBark = 0;
+
+        if (barkAudioSource != null)
+        {
+            barkAudioSource.Stop();
         }
     }
 }
