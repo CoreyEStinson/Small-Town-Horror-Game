@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,12 +8,16 @@ public sealed class PlayerInteractionController : MonoBehaviour
     [Header("Input")]
     [SerializeField] private InputActionAsset inputActions;
 
-    [Header("Interaction")]
+    [Header("Scene References")]
     [SerializeField] private DialogueRunner dialogueRunner;
-    [SerializeField] private NpcInteraction currentInteractableNpc;
-    [SerializeField] private InteractionPromptController interactionText;
+    [SerializeField] private InteractionPromptController interactionPrompt;
+
+    private readonly Dictionary<Interactable, int> nearbyInteractables = 
+        new Dictionary<Interactable, int>();
 
     private InputAction interactAction;
+    private Interactable currentInteractable;
+    private bool dialogueWasOpen;
 
     private void Awake()
     {
@@ -48,6 +53,18 @@ public sealed class PlayerInteractionController : MonoBehaviour
         interactAction.started += OnInteract;
     }
 
+    private void Update()
+    {
+        bool dialogueIsOpen = dialogueRunner != null && dialogueRunner.IsDialogueOpen;
+
+        if (dialogueWasOpen && !dialogueIsOpen)
+        {
+            RefreshPrompt();
+        }
+
+        dialogueWasOpen = dialogueIsOpen;
+    }
+
     private void OnDestroy()
     {
         if (interactAction != null)
@@ -56,43 +73,115 @@ public sealed class PlayerInteractionController : MonoBehaviour
         }
     }
 
-    private void OnInteract(InputAction.CallbackContext context)
+    public void EnterInteractionRange(Interactable interactable)
     {
-        if (dialogueRunner == null)
+        if (interactable == null)
         {
-            Debug.LogWarning("PlayerInteractionController.OnInteract: DialogueRunner not found!");
             return;
         }
 
-        if (dialogueRunner.IsDialogueOpen)
+        if (nearbyInteractables.ContainsKey(interactable))
+        {
+            nearbyInteractables[interactable]++;
+        }
+        else
+        {
+            nearbyInteractables.Add(interactable, 1);
+        }
+
+        RefreshPrompt();
+    }
+
+    public void ExitInteractionRange(Interactable interactable)
+    {
+        if (interactable == null ||
+            !nearbyInteractables.TryGetValue(interactable, out int overlapCount))
+        {
+            return;
+        }
+
+        overlapCount--;
+
+        if (overlapCount <= 0)
+        {
+            nearbyInteractables.Remove(interactable);
+        }
+        else
+        {
+            nearbyInteractables[interactable] = overlapCount;
+        }
+
+        RefreshPrompt();
+    }
+
+    private void OnInteract(InputAction.CallbackContext context)
+    {
+        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
         {
             dialogueRunner.HandleAdvanceInput();
             return;
         }
 
-        if (currentInteractableNpc != null)
+        if (currentInteractable == null)
         {
-            bool opened = dialogueRunner.BeginDialogue(currentInteractableNpc.dialogueLoader);
+            return;
+        }
 
-            if (opened)
+        currentInteractable.Interact();
+
+        RefreshPrompt();
+    }
+
+    private void RefreshPrompt()
+    {
+        if (interactionPrompt == null)
+        {
+            return;
+        }
+
+        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
+        {
+            interactionPrompt.Hide();
+            return;
+        }
+
+        currentInteractable = FindClosestInteractable();
+
+        if (currentInteractable == null)
+        {
+            interactionPrompt.Hide();
+            return;
+        }
+
+        interactionPrompt.Show(currentInteractable.GetCurrentPrompt());
+    }
+
+    private Interactable FindClosestInteractable()
+    {
+        Interactable closest = null;
+        float closestDistanceSqr = float.MaxValue;
+
+        foreach(KeyValuePair<Interactable, int> entry in nearbyInteractables)
+        {
+            Interactable candidate = entry.Key;
+            
+            if (candidate == null || 
+                !candidate.isActiveAndEnabled ||
+                entry.Value <= 0)
             {
-                interactionText.Hide();
+                continue;
+            }
+
+            float distanceSqr = 
+                (candidate.SelectionPosition - transform.position).sqrMagnitude;
+
+            if (distanceSqr < closestDistanceSqr)
+            {
+                closest = candidate;
+                closestDistanceSqr = distanceSqr;
             }
         }
-    }
 
-    // TODO: Does not handle the situation where there are multiple NPCs with overlaping collisions
-    // Should choose the closest NPC over the currently overlaping ones
-    public void EnterInteractRange(NpcInteraction npcInteraction)
-    {
-        currentInteractableNpc = npcInteraction;
-        interactionText.Show(npcInteraction.promptText);
+        return closest;
     }
-
-    public void ExitInteractRange(NpcInteraction npcInteraction)
-    {
-        currentInteractableNpc = null;
-        interactionText.Hide();
-    }
-
 }
