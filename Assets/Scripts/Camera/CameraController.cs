@@ -76,6 +76,27 @@ public class CameraController : MonoBehaviour
         camera.fieldOfView = currentFOV;
     }
 
+    public void SnapToPlayer()
+    {
+        if (player == null)
+        {
+            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+            if (playerObject != null)
+            {
+                player = playerObject.transform;
+            }
+        }
+
+        if (player == null)
+        {
+            return;
+        }
+
+        currentOffset = targetOffset;
+        currentVelocity = Vector3.zero;
+        transform.position = player.position + currentOffset;
+    }
     public void EnterDialogueCameraMode()
     {
         targetOffset = dialogueOffset;
@@ -104,3 +125,4 @@ public class CameraController : MonoBehaviour
         }        
     }
 }
+

@@ -6,7 +6,7 @@ public sealed class DialogueRunner : MonoBehaviour
 {
     [Header("Scene References")]
     [SerializeField] private TextboxController textbox;
-    [SerializeField] private DialogueFlagStore flagStore;
+    [SerializeField] private GameState gameState;
 
     private NpcDialogueData activeNpcData;
     private ConversationData activeConversation;
@@ -15,7 +15,10 @@ public sealed class DialogueRunner : MonoBehaviour
     private LineData currentLine;
     private int currentLineIndex = -1;
 
-    public bool IsDialogueOpen => activeConversation != null && textbox != null && textbox.IsOpen;
+    public bool IsDialogueOpen =>
+        activeConversation != null &&
+        textbox != null &&
+        textbox.IsOpen;
 
     private void Awake()
     {
@@ -24,9 +27,9 @@ public sealed class DialogueRunner : MonoBehaviour
             textbox = FindTextboxController();
         }
 
-        if (flagStore == null)
+        if (gameState == null)
         {
-            flagStore = FindAnyObjectByType<DialogueFlagStore>();
+            gameState = FindAnyObjectByType<GameState>();
         }
     }
 
@@ -50,26 +53,41 @@ public sealed class DialogueRunner : MonoBehaviour
     {
         if (loader == null)
         {
-            Debug.LogError("DialogueRunner.BeginDialogue: loader parameter is null.", this);
+            Debug.LogError(
+                "DialogueRunner.BeginDialogue: loader parameter is null.",
+                this
+            );
+
             return false;
         }
 
         if (loader.DialogueData == null)
         {
-            Debug.LogWarning("Loading dialogue data");
             loader.Load();
         }
 
         if (loader.DialogueData == null)
         {
-            Debug.LogError($"DialogueRunner.BeginDialogue: Failed to load dialogue data from {loader}.", loader);
+            Debug.LogError(
+                $"DialogueRunner.BeginDialogue: Failed to load dialogue " +
+                $"data from {loader}.",
+                loader
+            );
+
             return false;
         }
 
-        ConversationData conversation = SelectConversation(loader.DialogueData);
+        ConversationData conversation =
+            SelectConversation(loader.DialogueData);
+
         if (conversation == null)
         {
-            Debug.LogWarning($"No valid conversation found for NPC '{loader.DialogueData.npcId}'.", loader);
+            Debug.LogWarning(
+                $"No valid conversation found for NPC " +
+                $"'{loader.DialogueData.npcId}'.",
+                loader
+            );
+
             return false;
         }
 
@@ -78,9 +96,9 @@ public sealed class DialogueRunner : MonoBehaviour
         activeLineLookup = BuildLineLookup(conversation);
         activeLines = conversation.lines;
 
-        if (flagStore != null)
+        if (gameState != null)
         {
-            flagStore.SetFlags(conversation.setFlags);
+            gameState.SetFlags(conversation.setFlags);
         }
 
         return ShowStartLine();
@@ -93,7 +111,10 @@ public sealed class DialogueRunner : MonoBehaviour
             return false;
         }
 
-        bool hasChoices = currentLine.choices != null && currentLine.choices.Count > 0;
+        bool hasChoices =
+            currentLine.choices != null &&
+            currentLine.choices.Count > 0;
+
         if (hasChoices)
         {
             return false;
@@ -133,57 +154,95 @@ public sealed class DialogueRunner : MonoBehaviour
         }
     }
 
+    public void OpenDialogue(DialogueYamlLoader loader)
+    {
+        BeginDialogue(loader);
+    }
+
     private ConversationData SelectConversation(NpcDialogueData npcData)
     {
-        if (npcData?.conversations == null || npcData.conversations.Count == 0)
+        if (npcData?.conversations == null ||
+            npcData.conversations.Count == 0)
         {
-            Debug.LogWarning($"DialogueRunner.SelectConversation: NPC '{npcData?.npcId ?? "UNKNOWN"}' has no conversations.", this);
+            Debug.LogWarning(
+                $"DialogueRunner.SelectConversation: NPC " +
+                $"'{npcData?.npcId ?? "UNKNOWN"}' has no conversations.",
+                this
+            );
+
             return null;
         }
 
-        List<ConversationData> sortedConversations = new List<ConversationData>(npcData.conversations);
-        sortedConversations.Sort((left, right) => right.priority.CompareTo(left.priority));
+        List<ConversationData> sortedConversations =
+            new List<ConversationData>(npcData.conversations);
+
+        sortedConversations.Sort(
+            (left, right) => right.priority.CompareTo(left.priority)
+        );
 
         foreach (ConversationData conversation in sortedConversations)
         {
             if (conversation == null)
             {
-                Debug.LogWarning($"DialogueRunner.SelectConversation: Found null conversation for NPC '{npcData.npcId}'.", this);
+                Debug.LogWarning(
+                    $"DialogueRunner.SelectConversation: Found null " +
+                    $"conversation for NPC '{npcData.npcId}'.",
+                    this
+                );
+
                 continue;
             }
 
-            if (flagStore == null)
+            if (gameState == null)
             {
-                Debug.LogWarning("DialogueRunner.SelectConversation: flagStore is null. Cannot validate conversation conditions.", this);
+                Debug.LogWarning(
+                    "DialogueRunner.SelectConversation: GameState is null. " +
+                    "Using the first priority conversation.",
+                    this
+                );
+
                 return conversation;
             }
 
-            if (flagStore.MeetsAll(conversation.requiresFlags))
+            if (gameState.MeetsAll(conversation.requiresFlags))
             {
                 return conversation;
             }
         }
 
-        Debug.LogWarning($"DialogueRunner.SelectConversation: No conversation found for NPC '{npcData.npcId}' that meets all flag requirements.", this);
+        Debug.LogWarning(
+            $"DialogueRunner.SelectConversation: No conversation found " +
+            $"for NPC '{npcData.npcId}' that meets all flag requirements.",
+            this
+        );
+
         return null;
     }
 
-    private Dictionary<string, LineData> BuildLineLookup(ConversationData conversation)
+    private Dictionary<string, LineData> BuildLineLookup(
+        ConversationData conversation)
     {
-        Dictionary<string, LineData> lookup = new Dictionary<string, LineData>(StringComparer.Ordinal);
+        Dictionary<string, LineData> lookup =
+            new Dictionary<string, LineData>(StringComparer.Ordinal);
 
         if (conversation?.lines == null)
         {
-            Debug.LogError("DialogueRunner.BuildLineLookup: Conversation has no lines.", this);
+            Debug.LogError(
+                "DialogueRunner.BuildLineLookup: Conversation has no lines.",
+                this
+            );
+
             return lookup;
         }
 
         int nullLineCount = 0;
         int emptyIdCount = 0;
+        int duplicateIdCount = 0;
 
         for (int i = 0; i < conversation.lines.Count; i++)
         {
             LineData line = conversation.lines[i];
+
             if (line == null)
             {
                 nullLineCount++;
@@ -196,12 +255,39 @@ public sealed class DialogueRunner : MonoBehaviour
                 continue;
             }
 
+            if (lookup.ContainsKey(line.lineId))
+            {
+                duplicateIdCount++;
+            }
+
             lookup[line.lineId] = line;
         }
 
         if (nullLineCount > 0)
         {
-            Debug.LogWarning($"DialogueRunner.BuildLineLookup: Found {nullLineCount} null line(s) in conversation.", this);
+            Debug.LogWarning(
+                $"DialogueRunner.BuildLineLookup: Found {nullLineCount} " +
+                "null line(s) in conversation.",
+                this
+            );
+        }
+
+        if (emptyIdCount > 0)
+        {
+            Debug.LogWarning(
+                $"DialogueRunner.BuildLineLookup: Found {emptyIdCount} " +
+                "line(s) without IDs in conversation.",
+                this
+            );
+        }
+
+        if (duplicateIdCount > 0)
+        {
+            Debug.LogWarning(
+                $"DialogueRunner.BuildLineLookup: Found {duplicateIdCount} " +
+                "duplicate line ID(s); later lines override earlier lines.",
+                this
+            );
         }
 
         return lookup;
@@ -211,7 +297,11 @@ public sealed class DialogueRunner : MonoBehaviour
     {
         if (activeLines == null || activeLines.Count == 0)
         {
-            Debug.LogError("DialogueRunner.ShowStartLine: Active conversation has no lines.", this);
+            Debug.LogError(
+                "DialogueRunner.ShowStartLine: Active conversation has no lines.",
+                this
+            );
+
             EndDialogue();
             return false;
         }
@@ -228,63 +318,52 @@ public sealed class DialogueRunner : MonoBehaviour
     {
         if (activeLineLookup == null)
         {
-            Debug.LogError("DialogueRunner.ShowLineById: activeLineLookup is null.", this);
+            Debug.LogError(
+                "DialogueRunner.ShowLineById: activeLineLookup is null.",
+                this
+            );
+
             EndDialogue();
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(lineId))
         {
-            Debug.LogError("DialogueRunner.ShowLineById: lineId is null or empty.", this);
+            Debug.LogError(
+                "DialogueRunner.ShowLineById: lineId is null or empty.",
+                this
+            );
+
             EndDialogue();
             return false;
         }
 
-        if (!activeLineLookup.TryGetValue(lineId, out LineData nextLine) || nextLine == null)
+        if (!activeLineLookup.TryGetValue(
+                lineId,
+                out LineData nextLine) ||
+            nextLine == null)
         {
-            Debug.LogError($"Missing lineId '{lineId}' in active conversation.", this);
+            Debug.LogError(
+                $"Missing lineId '{lineId}' in active conversation.",
+                this
+            );
+
             EndDialogue();
             return false;
         }
 
-        int lineIndex = activeLines.IndexOf(nextLine);
-        return ShowLineAtIndex(lineIndex);
-    }
-
-    private void OnChoiceSelected(ChoiceData choice)
-    {
-        if (choice == null)
-        {
-            Debug.LogWarning("DialogueRunner.OnChoiceSelected: choice parameter is null.", this);
-            return;
-        }
-
-        if (flagStore != null && !flagStore.MeetsAll(choice.requiredConditions))
-        {
-            Debug.LogWarning("DialogueRunner.OnChoiceSelected: Choice does not meet required conditions.", this);
-            return;
-        }
-
-        if (flagStore == null && (choice.requiredConditions?.Count ?? 0) > 0)
-        {
-            Debug.LogWarning("DialogueRunner.OnChoiceSelected: flagStore is null but choice has required conditions.", this);
-        }
-
-        if (string.IsNullOrWhiteSpace(choice.nextLineId))
-        {
-            Debug.Log("DialogueRunner.OnChoiceSelected: Choice leads to end of dialogue.", this);
-            EndDialogue();
-            return;
-        }
-
-        ShowLineById(choice.nextLineId);
+        return ShowLineAtIndex(activeLines.IndexOf(nextLine));
     }
 
     private bool ShowNextLineFromCurrent()
     {
         if (currentLine == null)
         {
-            Debug.LogError("DialogueRunner.ShowNextLineFromCurrent: currentLine is null.", this);
+            Debug.LogError(
+                "DialogueRunner.ShowNextLineFromCurrent: currentLine is null.",
+                this
+            );
+
             EndDialogue();
             return false;
         }
@@ -301,63 +380,131 @@ public sealed class DialogueRunner : MonoBehaviour
     {
         if (activeLines == null)
         {
-            Debug.LogError("DialogueRunner.ShowLineAtIndex: activeLines is null.", this);
+            Debug.LogError(
+                "DialogueRunner.ShowLineAtIndex: activeLines is null.",
+                this
+            );
+
             EndDialogue();
             return false;
         }
 
         if (lineIndex < 0 || lineIndex >= activeLines.Count)
         {
-            Debug.LogWarning($"DialogueRunner.ShowLineAtIndex: lineIndex {lineIndex} out of range [0-{activeLines.Count - 1}]. Ending dialogue.", this);
+            Debug.Log(
+                "DialogueRunner: Reached the end of the dialogue.",
+                this
+            );
+
             EndDialogue();
             return false;
         }
 
         LineData nextLine = activeLines[lineIndex];
+
         if (nextLine == null)
         {
-            Debug.LogError($"DialogueRunner.ShowLineAtIndex: Line at index {lineIndex} is null.", this);
+            Debug.LogError(
+                $"DialogueRunner.ShowLineAtIndex: Line at index " +
+                $"{lineIndex} is null.",
+                this
+            );
+
+            EndDialogue();
+            return false;
+        }
+
+        if (textbox == null)
+        {
+            Debug.LogError(
+                "DialogueRunner.ShowLineAtIndex: TextboxController is null.",
+                this
+            );
+
             EndDialogue();
             return false;
         }
 
         currentLineIndex = lineIndex;
         currentLine = nextLine;
-        textbox.ShowLine(activeNpcData, BuildDisplayLine(currentLine));
+
+        textbox.ShowLine(
+            activeNpcData,
+            BuildDisplayLine(currentLine)
+        );
+
         return true;
+    }
+
+    private void OnChoiceSelected(ChoiceData choice)
+    {
+        if (choice == null)
+        {
+            Debug.LogWarning(
+                "DialogueRunner.OnChoiceSelected: choice parameter is null.",
+                this
+            );
+
+            return;
+        }
+
+        if (gameState != null &&
+            !gameState.MeetsAll(choice.requiredConditions))
+        {
+            Debug.LogWarning(
+                "DialogueRunner.OnChoiceSelected: Choice conditions " +
+                "are not met.",
+                this
+            );
+
+            return;
+        }
+
+        if (gameState == null &&
+            (choice.requiredConditions?.Count ?? 0) > 0)
+        {
+            Debug.LogWarning(
+                "DialogueRunner.OnChoiceSelected: GameState is null " +
+                "but choice has required conditions.",
+                this
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(choice.nextLineId))
+        {
+            EndDialogue();
+            return;
+        }
+
+        ShowLineById(choice.nextLineId);
     }
 
     private LineData BuildDisplayLine(LineData sourceLine)
     {
-        if (sourceLine == null)
-        {
-            Debug.LogError("DialogueRunner.BuildDisplayLine: sourceLine is null.", this);
-            return new LineData();
-        }
-
         LineData displayLine = new LineData
         {
             lineId = sourceLine.lineId,
             speakerOverride = sourceLine.speakerOverride,
             portrait = sourceLine.portrait,
             bodyText = sourceLine.bodyText,
-            nextLineId = sourceLine.nextLineId
+            nextLineId = sourceLine.nextLineId,
+            choices = new List<ChoiceData>()
         };
 
-        if (sourceLine.choices == null || sourceLine.choices.Count == 0)
+        if (sourceLine.choices == null)
         {
             return displayLine;
         }
 
-        for (int i = 0; i < sourceLine.choices.Count; i++)
+        foreach (ChoiceData choice in sourceLine.choices)
         {
-            ChoiceData choice = sourceLine.choices[i];
             if (choice == null)
             {
                 continue;
             }
 
-            if (flagStore != null && !flagStore.MeetsAll(choice.requiredConditions))
+            if (gameState != null &&
+                !gameState.MeetsAll(choice.requiredConditions))
             {
                 continue;
             }
@@ -370,28 +517,24 @@ public sealed class DialogueRunner : MonoBehaviour
 
     private TextboxController FindTextboxController()
     {
-        TextboxController[] textboxes = Resources.FindObjectsOfTypeAll<TextboxController>();
-        if (textboxes.Length == 0)
-        {
-            Debug.LogError("DialogueRunner.FindTextboxController: No TextboxController found in scene.", this);
-            return null;
-        }
+        TextboxController[] textboxes =
+            Resources.FindObjectsOfTypeAll<TextboxController>();
 
-        for (int i = 0; i < textboxes.Length; i++)
+        foreach (TextboxController candidate in textboxes)
         {
-            TextboxController candidate = textboxes[i];
-            if (candidate != null && candidate.gameObject.scene.IsValid())
+            if (candidate != null &&
+                candidate.gameObject.scene.IsValid())
             {
                 return candidate;
             }
         }
 
-        Debug.LogError("DialogueRunner.FindTextboxController: Found TextboxController(s) but none are in a valid scene.", this);
-        return null;
-    }
+        Debug.LogError(
+            "DialogueRunner.FindTextboxController: No TextboxController " +
+            "found in a valid scene.",
+            this
+        );
 
-    public void OpenDialogue(DialogueYamlLoader loader)
-    {
-        BeginDialogue(loader);
+        return null;
     }
 }

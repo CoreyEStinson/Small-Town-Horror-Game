@@ -4,35 +4,34 @@ using UnityEngine.InputSystem;
 public class MovementController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 5f; // Normal walking speed
-    public float sprintSpeed = 8f; // Running speed while sprinting
-    public float rotationSpeed = 10f; // How fast the character turns to face move direction
-    public float jumpForce = 8f; // How high character jumps
+    public float moveSpeed = 5f;
+    public float sprintSpeed = 8f;
+    public float rotationSpeed = 10f;
+    public float jumpForce = 8f;
 
     [Header("Ground Detection")]
-    public float groundCheckDistance = 0.3f; // Distance to check for ground
-    public LayerMask groundMask; // Which layers count as ground
+    public float groundCheckDistance = 0.3f;
+    public LayerMask groundMask;
 
     [Header("Camera")]
-    public Transform cameraTransform; // Camera refrence
+    public Transform cameraTransform;
 
     [Header("Input")]
-    public InputActionAsset inputActions; // Reference to the input actions asset
+    public InputActionAsset inputActions;
 
     [Header("Dialogue")]
     [SerializeField] private DialogueRunner dialogueRunner;
 
-    // Private fields
-    private CharacterController controller; // Unity's camera controller
-    private Transform playerTransform; // Refrence to player's transform
-    private Vector3 moveDirection; // Current movement direction
-    private float currentSpeed; // Current movement speed
-    private bool isGrounded; // Is the character on the ground
-    private float verticalVelocity; // Vertical speed (jumping/falling)
-    private bool isSprinting; // Is the character sprinting
-    private const float GRAVITY = -9.81f;
+    private CharacterController controller;
+    private Transform playerTransform;
+    private Vector3 moveDirection;
+    private float currentSpeed;
+    private bool isGrounded;
+    private float verticalVelocity;
+    private bool isSprinting;
 
-    // Input action references
+    private const float Gravity = -9.81f;
+
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction sprintAction;
@@ -45,53 +44,122 @@ public class MovementController : MonoBehaviour
         }
     }
 
-    void Start()
+    private void Start()
     {
-        // Get controller references
         controller = GetComponent<CharacterController>();
         playerTransform = transform;
         currentSpeed = moveSpeed;
 
-        // Initialize input actions
         if (inputActions == null)
         {
             Debug.LogError("Input Actions asset not assigned!");
             return;
         }
 
-        // Get the Player action map
-        var playerActionMap = inputActions.FindActionMap("Player");
+        InputActionMap playerActionMap =
+            inputActions.FindActionMap("Player");
+
         if (playerActionMap == null)
         {
-            Debug.LogError("Player action map not found in Input Actions!");
+            Debug.LogError("Player action map not found!");
             return;
         }
 
-        // Get individual actions
         moveAction = playerActionMap.FindAction("Move");
         jumpAction = playerActionMap.FindAction("Jump");
         sprintAction = playerActionMap.FindAction("Sprint");
 
-        if (moveAction == null || jumpAction == null || sprintAction == null)
+        if (moveAction == null ||
+            jumpAction == null ||
+            sprintAction == null)
         {
-            Debug.LogError("One or more input actions not found!");
+            Debug.LogError("One or more player actions were not found!");
             return;
         }
 
-        // Subscribe to input events
         jumpAction.started += OnJump;
         sprintAction.started += OnSprintStarted;
         sprintAction.canceled += OnSprintCanceled;
 
-        // Enable the Player action map
         playerActionMap.Enable();
     }
 
-    void OnDestroy()
+    private void Update()
     {
-        // Unsubscribe from input events
+        if (controller == null ||
+            moveAction == null ||
+            cameraTransform == null)
+        {
+            return;
+        }
+
+        isGrounded = Physics.CheckSphere(
+            transform.position +
+            Vector3.down * controller.height / 2f,
+            groundCheckDistance,
+            groundMask
+        );
+
+        if (isGrounded && verticalVelocity < 0f)
+        {
+            verticalVelocity = 0f;
+        }
+
+        bool isDialogueOpen =
+            dialogueRunner != null &&
+            dialogueRunner.IsDialogueOpen;
+
+        bool inputLocked =
+            IrisTransitionController.IsTransitioning;
+
+        Vector2 moveInput =
+            isDialogueOpen || inputLocked
+                ? Vector2.zero
+                : moveAction.ReadValue<Vector2>();
+
+        if (isDialogueOpen || inputLocked)
+        {
+            isSprinting = false;
+        }
+
+        currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
+
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        moveDirection =
+            forward * moveInput.y +
+            right * moveInput.x;
+
+        if (moveDirection.magnitude > 1f)
+        {
+            moveDirection.Normalize();
+        }
+
+        controller.Move(
+            moveDirection * currentSpeed * Time.deltaTime
+        );
+
+        verticalVelocity += Gravity * Time.deltaTime;
+
+        controller.Move(
+            Vector3.up * verticalVelocity * Time.deltaTime
+        );
+    }
+
+    private void OnDestroy()
+    {
         if (jumpAction != null)
+        {
             jumpAction.started -= OnJump;
+        }
+
         if (sprintAction != null)
         {
             sprintAction.started -= OnSprintStarted;
@@ -99,70 +167,15 @@ public class MovementController : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        // Ground check using a sphere cast at the player's feet
-        isGrounded = Physics.CheckSphere(
-            transform.position + Vector3.down * controller.height/2,
-            groundCheckDistance,
-            groundMask
-        );
-
-        // Reset vertical velocity when grounded to prevent accumulation
-        if (isGrounded && verticalVelocity < 0)
-        {
-            verticalVelocity = 0f;
-        }
-
-        // Get movement input
-        bool isDialogueOpen = dialogueRunner != null && dialogueRunner.IsDialogueOpen;
-        Vector2 moveInput = isDialogueOpen ? Vector2.zero : moveAction.ReadValue<Vector2>();
-
-        // Set speed based on sprint state
-        if (isDialogueOpen)
-        {
-            isSprinting = false;
-        }
-
-        currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
-
-        // Calculate movement direction relative to camera
-        Vector3 forward = cameraTransform.forward;
-        Vector3 right = cameraTransform.right;
-
-        // Project forward and right vectors on the horizontal plane removing the y component
-        forward.y = 0;
-        right.y = 0;
-        forward.Normalize();
-        right.Normalize();
-
-        // Calculate the move direction in world space based on camera orientation
-        moveDirection = forward * moveInput.y + right * moveInput.x;
-
-        // Normalize movement vector to prevent fast diagonal movement
-        if (moveDirection.magnitude > 1f)
-        {
-            moveDirection.Normalize();
-        }
-
-        // Apply movement using character controller
-        controller.Move(moveDirection * currentSpeed * Time.deltaTime);
-
-        // Apply gravity to vertical velocity
-        verticalVelocity += GRAVITY * Time.deltaTime;
-
-        // Apply vertical movement (jumping/falling)
-        controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
-    }
-
     private void OnJump(InputAction.CallbackContext context)
     {
-        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
+        if (IrisTransitionController.IsTransitioning ||
+            (dialogueRunner != null &&
+             dialogueRunner.IsDialogueOpen))
         {
             return;
         }
 
-        // Jump when Jump action is triggered and grounded
         if (isGrounded)
         {
             verticalVelocity = jumpForce;
@@ -171,7 +184,9 @@ public class MovementController : MonoBehaviour
 
     private void OnSprintStarted(InputAction.CallbackContext context)
     {
-        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
+        if (IrisTransitionController.IsTransitioning ||
+            (dialogueRunner != null &&
+             dialogueRunner.IsDialogueOpen))
         {
             isSprinting = false;
             return;
@@ -185,12 +200,25 @@ public class MovementController : MonoBehaviour
         isSprinting = false;
     }
 
-    void OnDrawGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
-        // Draw ground sphere in scene view
+        CharacterController characterController =
+            GetComponent<CharacterController>();
+
+        if (characterController == null)
+        {
+            return;
+        }
+
         Gizmos.color = isGrounded ? Color.green : Color.red;
-        controller = GetComponent<CharacterController>();
-        Vector3 groundCheckPos = transform.position + Vector3.down * controller.height/2;
-        Gizmos.DrawWireSphere(groundCheckPos, groundCheckDistance);
+
+        Vector3 groundCheckPosition =
+            transform.position +
+            Vector3.down * characterController.height / 2f;
+
+        Gizmos.DrawWireSphere(
+            groundCheckPosition,
+            groundCheckDistance
+        );
     }
 }

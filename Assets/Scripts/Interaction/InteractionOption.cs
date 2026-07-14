@@ -12,7 +12,6 @@ public class InteractionOption
 
     [Header("Conditions")]
     public List<string> requiredFlags = new List<string>();
-    
     public List<string> forbiddenFlags = new List<string>();
 
     [Header("Results")]
@@ -24,16 +23,16 @@ public class InteractionOption
 
     [NonSerialized] private bool hasBeenUsed;
 
-    public bool isValid(DialogueFlagStore flagStore)
+    public bool isValid(GameState gameState)
     {
-        if (hasBeenUsed)
+        if (hasBeenUsed || gameState == null)
         {
             return false;
         }
 
         foreach (string flag in requiredFlags)
         {
-            if (!flagStore.HasFlag(flag))
+            if (!gameState.HasFlag(flag))
             {
                 return false;
             }
@@ -41,7 +40,7 @@ public class InteractionOption
 
         foreach (string flag in forbiddenFlags)
         {
-            if (flagStore.HasFlag(flag))
+            if (gameState.HasFlag(flag))
             {
                 return false;
             }
@@ -50,9 +49,18 @@ public class InteractionOption
         return true;
     }
 
-    public void Execute(DialogueFlagStore flagStore)
+    public void Execute(GameState gameState)
     {
-        flagStore.SetFlags(flagsToSet);
+        if (gameState == null)
+        {
+            Debug.LogError(
+                "InteractionOption cannot execute without GameState."
+            );
+
+            return;
+        }
+
+        gameState.SetFlags(flagsToSet);
 
         if (runOnce)
         {

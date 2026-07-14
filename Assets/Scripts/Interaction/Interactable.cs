@@ -5,35 +5,43 @@ using UnityEngine.Events;
 public class Interactable : MonoBehaviour
 {
     [Header("Targeting")]
-    [Tooltip("Optional point used to determine which overlapping object is closest.")]
+    [Tooltip(
+        "Optional point used to determine which overlapping object is closest."
+    )]
     [SerializeField] private Transform selectionPoint;
 
     [Header("Interaction Options")]
-    [SerializeField] private List<InteractionOption> options = 
+    [SerializeField] private List<InteractionOption> options =
         new List<InteractionOption>();
 
     [Header("No Valid Option")]
     [SerializeField] private string disabledPrompt = "Can't use that.";
-    [SerializeField] private UnityEvent onDisabledInteract = new UnityEvent();
+    [SerializeField] private UnityEvent onDisabledInteract =
+        new UnityEvent();
 
-    private DialogueFlagStore flagStore;
+    private GameState gameState;
 
     private void Awake()
     {
-        flagStore = FindAnyObjectByType<DialogueFlagStore>();
+        gameState = FindAnyObjectByType<GameState>();
 
-        if (flagStore == null)
+        if (gameState == null)
         {
-            Debug.LogError("Interactable needs a DialogueFlagStore in the scene", this);
+            Debug.LogError(
+                "Interactable needs GameState in the scene.",
+                this
+            );
         }
     }
 
-    public Vector3 SelectionPosition => 
-        selectionPoint != null ? selectionPoint.position : transform.position;
+    public Vector3 SelectionPosition =>
+        selectionPoint != null
+            ? selectionPoint.position
+            : transform.position;
 
     public string GetCurrentPrompt()
     {
-        return TryGetActiveOption(out InteractionOption option) 
+        return TryGetActiveOption(out InteractionOption option)
             ? option.promptText
             : disabledPrompt;
     }
@@ -42,7 +50,7 @@ public class Interactable : MonoBehaviour
     {
         if (TryGetActiveOption(out InteractionOption option))
         {
-            option.Execute(flagStore);
+            option.Execute(gameState);
             return;
         }
 
@@ -53,14 +61,14 @@ public class Interactable : MonoBehaviour
     {
         activeOption = null;
 
-        if (flagStore == null)
+        if (gameState == null)
         {
             return false;
         }
 
         foreach (InteractionOption option in options)
         {
-            if (option != null && option.isValid(flagStore))
+            if (option != null && option.isValid(gameState))
             {
                 activeOption = option;
                 return true;

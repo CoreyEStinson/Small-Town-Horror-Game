@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -12,12 +11,13 @@ public sealed class PlayerInteractionController : MonoBehaviour
     [SerializeField] private DialogueRunner dialogueRunner;
     [SerializeField] private InteractionPromptController interactionPrompt;
 
-    private readonly Dictionary<Interactable, int> nearbyInteractables = 
+    private readonly Dictionary<Interactable, int> nearbyInteractables =
         new Dictionary<Interactable, int>();
 
     private InputAction interactAction;
     private Interactable currentInteractable;
     private bool dialogueWasOpen;
+    private bool transitionWasActive;
 
     private void Awake()
     {
@@ -35,17 +35,20 @@ public sealed class PlayerInteractionController : MonoBehaviour
             return;
         }
 
-        var playerActionMap = inputActions.FindActionMap("Player");
+        InputActionMap playerActionMap =
+            inputActions.FindActionMap("Player");
+
         if (playerActionMap == null)
         {
-            Debug.LogError("Player action map not found in Input Actions!");
+            Debug.LogError("Player action map not found!");
             return;
         }
 
         interactAction = playerActionMap.FindAction("Interact");
+
         if (interactAction == null)
         {
-            Debug.LogError("Interact action not found");
+            Debug.LogError("Interact action not found!");
             return;
         }
 
@@ -55,7 +58,23 @@ public sealed class PlayerInteractionController : MonoBehaviour
 
     private void Update()
     {
-        bool dialogueIsOpen = dialogueRunner != null && dialogueRunner.IsDialogueOpen;
+        bool transitionIsActive =
+            IrisTransitionController.IsTransitioning;
+
+        if (transitionIsActive)
+        {
+            interactionPrompt?.Hide();
+        }
+        else if (transitionWasActive)
+        {
+            RefreshPrompt();
+        }
+
+        transitionWasActive = transitionIsActive;
+
+        bool dialogueIsOpen =
+            dialogueRunner != null &&
+            dialogueRunner.IsDialogueOpen;
 
         if (dialogueWasOpen && !dialogueIsOpen)
         {
@@ -95,7 +114,9 @@ public sealed class PlayerInteractionController : MonoBehaviour
     public void ExitInteractionRange(Interactable interactable)
     {
         if (interactable == null ||
-            !nearbyInteractables.TryGetValue(interactable, out int overlapCount))
+            !nearbyInteractables.TryGetValue(
+                interactable,
+                out int overlapCount))
         {
             return;
         }
@@ -114,9 +135,21 @@ public sealed class PlayerInteractionController : MonoBehaviour
         RefreshPrompt();
     }
 
+    public void ResetInteractionRanges()
+    {
+        nearbyInteractables.Clear();
+        currentInteractable = null;
+        interactionPrompt?.Hide();
+    }
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
+        if (IrisTransitionController.IsTransitioning)
+        {
+            return;
+        }
+
+        if (dialogueRunner != null &&
+            dialogueRunner.IsDialogueOpen)
         {
             dialogueRunner.HandleAdvanceInput();
             return;
@@ -128,7 +161,6 @@ public sealed class PlayerInteractionController : MonoBehaviour
         }
 
         currentInteractable.Interact();
-
         RefreshPrompt();
     }
 
@@ -139,7 +171,9 @@ public sealed class PlayerInteractionController : MonoBehaviour
             return;
         }
 
-        if (dialogueRunner != null && dialogueRunner.IsDialogueOpen)
+        if (IrisTransitionController.IsTransitioning ||
+            (dialogueRunner != null &&
+             dialogueRunner.IsDialogueOpen))
         {
             interactionPrompt.Hide();
             return;
@@ -153,7 +187,9 @@ public sealed class PlayerInteractionController : MonoBehaviour
             return;
         }
 
-        interactionPrompt.Show(currentInteractable.GetCurrentPrompt());
+        interactionPrompt.Show(
+            currentInteractable.GetCurrentPrompt()
+        );
     }
 
     private Interactable FindClosestInteractable()
@@ -161,19 +197,21 @@ public sealed class PlayerInteractionController : MonoBehaviour
         Interactable closest = null;
         float closestDistanceSqr = float.MaxValue;
 
-        foreach(KeyValuePair<Interactable, int> entry in nearbyInteractables)
+        foreach (KeyValuePair<Interactable, int> entry
+                 in nearbyInteractables)
         {
             Interactable candidate = entry.Key;
-            
-            if (candidate == null || 
+
+            if (candidate == null ||
                 !candidate.isActiveAndEnabled ||
                 entry.Value <= 0)
             {
                 continue;
             }
 
-            float distanceSqr = 
-                (candidate.SelectionPosition - transform.position).sqrMagnitude;
+            float distanceSqr =
+                (candidate.SelectionPosition - transform.position)
+                .sqrMagnitude;
 
             if (distanceSqr < closestDistanceSqr)
             {

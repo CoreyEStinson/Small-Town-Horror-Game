@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,44 +5,79 @@ using UnityEngine.InputSystem;
 
 public class DialogueFlagDebugPanel : MonoBehaviour
 {
-    [SerializeField] private DialogueFlagStore dialogueFlagStore;
+    [SerializeField] private GameState gameState;
     [SerializeField] private GameObject debugPanel;
     [SerializeField] private TextMeshProUGUI flagText;
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    private void Awake()
     {
-        debugPanel.SetActive(false);
+        if (gameState == null)
+        {
+            gameState = FindAnyObjectByType<GameState>();
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnEnable()
     {
-        // Toggle visibility with F3
-        if (Keyboard.current.f3Key.wasPressedThisFrame)
+        if (gameState != null)
         {
-            bool newState = !debugPanel.activeSelf;
-            debugPanel.SetActive(newState);
-            if (newState) Refresh();
+            gameState.StateChanged += Refresh;
+        }
+    }
+
+    private void Start()
+    {
+        if (debugPanel != null)
+        {
+            debugPanel.SetActive(false);
         }
 
-        // Updates every frame. TODO: Make it update only whenever flags change
         Refresh();
+    }
+
+    private void OnDisable()
+    {
+        if (gameState != null)
+        {
+            gameState.StateChanged -= Refresh;
+        }
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current == null ||
+            !Keyboard.current.f3Key.wasPressedThisFrame ||
+            debugPanel == null)
+        {
+            return;
+        }
+
+        bool shouldShow = !debugPanel.activeSelf;
+        debugPanel.SetActive(shouldShow);
+
+        if (shouldShow)
+        {
+            Refresh();
+        }
     }
 
     public void Refresh()
     {
-        List<string> flags = dialogueFlagStore.GetAllFlags();
-        if (flags.Count == 0)
+        if (flagText == null)
         {
-            flagText.text = "(none)";
             return;
         }
 
-        flagText.text = "";
-        foreach (string flag in flags)
+        if (gameState == null)
         {
-            flagText.text += flag + "\n";
+            flagText.text = "(GameState missing)";
+            return;
         }
+
+        List<string> flags = gameState.GetAllFlags();
+
+        flagText.text = flags.Count == 0
+            ? "(none)"
+            : string.Join("\n", flags);
     }
 }
