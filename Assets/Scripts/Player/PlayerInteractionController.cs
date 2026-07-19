@@ -59,7 +59,7 @@ public sealed class PlayerInteractionController : MonoBehaviour
     private void Update()
     {
         bool transitionIsActive =
-            IrisTransitionController.IsTransitioning;
+            FadeTransition.IsTransitioning;
 
         if (transitionIsActive)
         {
@@ -143,7 +143,7 @@ public sealed class PlayerInteractionController : MonoBehaviour
     }
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (IrisTransitionController.IsTransitioning)
+        if (FadeTransition.IsTransitioning)
         {
             return;
         }
@@ -171,7 +171,7 @@ public sealed class PlayerInteractionController : MonoBehaviour
             return;
         }
 
-        if (IrisTransitionController.IsTransitioning ||
+        if (FadeTransition.IsTransitioning ||
             (dialogueRunner != null &&
              dialogueRunner.IsDialogueOpen))
         {

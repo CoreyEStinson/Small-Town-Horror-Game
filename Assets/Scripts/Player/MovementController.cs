@@ -110,7 +110,7 @@ public class MovementController : MonoBehaviour
             dialogueRunner.IsDialogueOpen;
 
         bool inputLocked =
-            IrisTransitionController.IsTransitioning;
+            FadeTransition.IsTransitioning;
 
         Vector2 moveInput =
             isDialogueOpen || inputLocked
@@ -169,7 +169,7 @@ public class MovementController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        if (IrisTransitionController.IsTransitioning ||
+        if (FadeTransition.IsTransitioning ||
             (dialogueRunner != null &&
              dialogueRunner.IsDialogueOpen))
         {
@@ -184,7 +184,7 @@ public class MovementController : MonoBehaviour
 
     private void OnSprintStarted(InputAction.CallbackContext context)
     {
-        if (IrisTransitionController.IsTransitioning ||
+        if (FadeTransition.IsTransitioning ||
             (dialogueRunner != null &&
              dialogueRunner.IsDialogueOpen))
         {

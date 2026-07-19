@@ -7,7 +7,7 @@ public class SaveDebugInput : MonoBehaviour
     {
         if (!Application.isPlaying ||
             Keyboard.current == null ||
-            IrisTransitionController.IsTransitioning)
+            FadeTransition.IsTransitioning)
         {
             return;
         }

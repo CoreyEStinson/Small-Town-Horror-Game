@@ -6,7 +6,7 @@ public class GameSession : MonoBehaviour
 
     public GameState GameState { get; private set; }
     public SaveManager SaveManager { get; private set; }
-    public IrisTransitionController IrisTransition { get; private set; }
+    public FadeTransition FadeTransition { get; private set; }
 
     private void Awake()
     {
@@ -21,7 +21,7 @@ public class GameSession : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         GameState = EnsureComponent<GameState>();
-        IrisTransition = EnsureComponent<IrisTransitionController>();
+        FadeTransition = EnsureComponent<FadeTransition>();
         SaveManager = EnsureComponent<SaveManager>();
         EnsureComponent<SaveDebugInput>();
     }

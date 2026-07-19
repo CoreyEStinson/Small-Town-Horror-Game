@@ -12,7 +12,7 @@ public class SaveManager : MonoBehaviour
     public static SaveManager Instance { get; private set; }
 
     private GameState gameState;
-    private IrisTransitionController irisTransition;
+    private FadeTransition fadeTransition;
     private bool startupStarted;
 
     private string SavePath => 
@@ -29,7 +29,7 @@ public class SaveManager : MonoBehaviour
         Instance = this;
 
         gameState = GetComponent<GameState>();
-        irisTransition = GetComponent<IrisTransitionController>();
+        fadeTransition = GetComponent<FadeTransition>();
     }
 
     private void Start()
@@ -123,7 +123,7 @@ public class SaveManager : MonoBehaviour
 
     public void LoadSavedGame()
     {
-        if (IrisTransitionController.IsTransitioning)
+        if (FadeTransition.IsTransitioning)
         {
             return;
         }
@@ -146,7 +146,7 @@ public class SaveManager : MonoBehaviour
         string destinationSceneName,
         string destinationSpawnId)
     {
-        if (IrisTransitionController.IsTransitioning)
+        if (FadeTransition.IsTransitioning)
         {
             return;
         }
@@ -205,7 +205,7 @@ public class SaveManager : MonoBehaviour
 
     private IEnumerator BeginStartupRoutine()
     {
-        irisTransition?.EnsureClosed();
+        fadeTransition?.EnsureClosed();
 
         yield return null;
 
@@ -228,17 +228,17 @@ public class SaveManager : MonoBehaviour
 
     private IEnumerator StartFreshGameRoutine()
     {
-        if (irisTransition != null)
+        if (fadeTransition != null)
         {
-            yield return irisTransition.Close();
+            yield return fadeTransition.Close();
         }
 
         gameState?.ResetState();
         PlaceAtDefaultSpawn(setCheckpoint: true);
 
-        if (irisTransition != null)
+        if (fadeTransition != null)
         {
-            yield return irisTransition.Open();
+            yield return fadeTransition.Open();
         }
     }
 
@@ -274,9 +274,9 @@ public class SaveManager : MonoBehaviour
         string spawnId,
         bool fallBackToDefaultSpawn)
     {
-        if (irisTransition != null)
+        if (fadeTransition != null)
         {
-            yield return irisTransition.Close();
+            yield return fadeTransition.Close();
         }
 
         if (SceneManager.GetActiveScene().name != sceneName)
@@ -306,9 +306,9 @@ public class SaveManager : MonoBehaviour
             );
         }
 
-        if (irisTransition != null)
+        if (fadeTransition != null)
         {
-            yield return irisTransition.Open();
+            yield return fadeTransition.Open();
         }
     }
 
