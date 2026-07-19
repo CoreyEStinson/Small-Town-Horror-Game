@@ -1,0 +1,25 @@
+quests:
+  - id: restore_harvest_feast
+    type: main
+    title: Restore the Harvest Feast
+    summary: Help the townsfolk prepare for the Harvest.
+    completionSummary: The Harvest Feast was restored.
+    objectives:
+      - id: find_bayker
+        text: Find Bayker at the bakery.
+        location: Old Bakery
+        giver: Inspekta
+        initiallyActive: true
+
+      - id: gather_wildflowers
+        text: Gather wildflowers.
+        location: Milldread Woods
+        giver: Bayker
+        progressTarget: 10
+        initiallyActive: false
+
+      - id: return_to_bayker
+        text: Return to Bayker.
+        location: Old Bakery
+        giver: Bayker
+        initiallyActive: false
