@@ -5,6 +5,8 @@ public class GameSession : MonoBehaviour
     public static GameSession Instance { get; private set; }
 
     public GameState GameState { get; private set; }
+    public JournalSaveData JournalSaveData { get; private set; } = new JournalSaveData();
+    public JournalManager JournalManager { get; private set; }
     public SaveManager SaveManager { get; private set; }
     public FadeTransition FadeTransition { get; private set; }
 
@@ -22,6 +24,7 @@ public class GameSession : MonoBehaviour
 
         GameState = EnsureComponent<GameState>();
         FadeTransition = EnsureComponent<FadeTransition>();
+        JournalManager = EnsureComponent<JournalManager>();
         SaveManager = EnsureComponent<SaveManager>();
         EnsureComponent<SaveDebugInput>();
     }
@@ -36,5 +39,10 @@ public class GameSession : MonoBehaviour
         }
 
         return component;
+    }
+
+    public void SetJournalSaveData(JournalSaveData data)
+    {
+        JournalSaveData = data ?? new JournalSaveData();
     }
 }

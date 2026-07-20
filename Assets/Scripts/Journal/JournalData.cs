@@ -22,15 +22,17 @@ public sealed class Quest
     public string summary;
     public string completionSummary;
     public List<Objective> objectives;
+    public bool autoStart;
 }
 
 [Serializable]
+
 public sealed class Objective
 {
     public string id;
     public string text;
-    public string? location;
-    public string? giver;
+    public string location;
+    public string giver;
     public int? progressTarget;
     public bool initiallyActive;
 }
@@ -40,6 +42,6 @@ public sealed class Note
 {
     public string id;
     public string title;
-    public string? bodyText;
-    public string? imagePath;
+    public string bodyText;
+    public string imagePath;
 }

@@ -348,6 +348,79 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &177691436
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 177691439}
+  - component: {fileID: 177691438}
+  - component: {fileID: 177691437}
+  m_Layer: 0
+  m_Name: BakeryQuestTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &177691437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 177691436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 761e3cbfff6553242994092d0b37ef65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JournalAreaTrigger
+  triggerId: bakery_quest_trigger
+  actions:
+  - actionType: 0
+    questId: restore_harvest_feast
+    objectiveId: gather_wildflowers
+    noteId: baker_letter
+    progressValue: 0
+--- !u!65 &177691438
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 177691436}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &177691439
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 177691436}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.514, z: -3.355}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &193464861
 GameObject:
   m_ObjectHideFlags: 0
@@ -686,6 +759,7 @@ MonoBehaviour:
     requiredFlags: []
     forbiddenFlags: []
     flagsToSet: []
+    journalActions: []
     runOnce: 0
     onInteract:
       m_PersistentCalls:
@@ -928,7 +1002,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &874017493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1113,6 +1187,7 @@ MonoBehaviour:
     requiredFlags: []
     forbiddenFlags: []
     flagsToSet: []
+    journalActions: []
     runOnce: 0
     onInteract:
       m_PersistentCalls:
@@ -1712,6 +1787,7 @@ MonoBehaviour:
     requiredFlags: []
     forbiddenFlags: []
     flagsToSet: []
+    journalActions: []
     runOnce: 0
     onInteract:
       m_PersistentCalls:
@@ -1855,7 +1931,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1626018345}
-  - component: {fileID: 1626018346}
+  - component: {fileID: 1626018347}
+  - component: {fileID: 1626018348}
   m_Layer: 0
   m_Name: JournalManager
   m_TagString: Untagged
@@ -1878,7 +1955,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 193464862}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1626018346
+--- !u!114 &1626018347
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1887,13 +1964,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1626018344}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 724bbb7c544f26e489a129724ee8799c, type: 3}
+  m_Script: {fileID: 11500000, guid: ecccdc4aa7391404993c52634458b084, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::JournalYamlLoader
-  yamlFiles:
-  - {fileID: 4900000, guid: 0591904a2a4ed0740a4f0e29d76edf11, type: 3}
-  - {fileID: 4900000, guid: 326fbbaef2cc5914ebbed402e07e5b21, type: 3}
-  parseOnAwake: 1
+  m_EditorClassIdentifier: Assembly-CSharp::JournalManager
+--- !u!114 &1626018348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1626018344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62710f278ef8bef44b876d9bb6ba7f86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameSession
 --- !u!1 &1736016266
 GameObject:
   m_ObjectHideFlags: 0
@@ -2106,6 +2191,7 @@ MonoBehaviour:
     forbiddenFlags: []
     flagsToSet:
     - collected_jam
+    journalActions: []
     runOnce: 0
     onInteract:
       m_PersistentCalls:
@@ -2250,6 +2336,12 @@ MonoBehaviour:
     requiredFlags: []
     forbiddenFlags: []
     flagsToSet: []
+    journalActions:
+    - actionType: 2
+      questId: restore_harvest_feast
+      objectiveId: find_bayker
+      noteId: 
+      progressValue: 0
     runOnce: 0
     onInteract:
       m_PersistentCalls:
@@ -2629,7 +2721,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 597736783627107663, guid: 7e077f079ece72f49ae4036936c572bc, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3750045494256333230, guid: 7e077f079ece72f49ae4036936c572bc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2753,63 +2845,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 042f12a5411b2634d8ba3612da9fe289, type: 3}
---- !u!1001 &6756148553216695575
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.22875
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.53054
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6545595496801154692, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7607413866474373959, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
-      propertyPath: m_Name
-      value: GameSession
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 593ffd1759b737b4489f2ddba7075e35, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -2824,7 +2859,7 @@ SceneRoots:
   - {fileID: 1749777168}
   - {fileID: 1385392395863409209}
   - {fileID: 193464862}
-  - {fileID: 6756148553216695575}
   - {fileID: 328913856}
   - {fileID: 2082670618414734521}
   - {fileID: 874017496}
+  - {fileID: 177691439}

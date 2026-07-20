@@ -1,6 +1,7 @@
 quests:
   - id: restore_harvest_feast
     type: main
+    autoStart: true
     title: Restore the Harvest Feast
     summary: Help the townsfolk prepare for the Harvest.
     completionSummary: The Harvest Feast was restored.

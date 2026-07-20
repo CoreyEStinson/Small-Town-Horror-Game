@@ -17,6 +17,10 @@ public class InteractionOption
     [Header("Results")]
     public List<string> flagsToSet = new List<string>();
 
+    [Header("Journal Results")]
+    public List<JournalAction> journalActions =
+        new List<JournalAction>();
+
     public bool runOnce;
 
     public UnityEvent onInteract = new UnityEvent();
@@ -61,6 +65,13 @@ public class InteractionOption
         }
 
         gameState.SetFlags(flagsToSet);
+
+        JournalManager journalManager = JournalManager.Instance;
+
+        foreach (JournalAction action in journalActions)
+        {
+            action?.Execute(journalManager);
+        }
 
         if (runOnce)
         {

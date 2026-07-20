@@ -1,0 +1,7 @@
+notes:
+  - id: baker_letter
+    title: Baker Letter
+    bodyText: |
+      Dear Saul,
+      The harvest must proceed...
+    imagePath: Journal/Images/letter

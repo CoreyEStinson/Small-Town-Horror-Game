@@ -7,11 +7,12 @@ using UnityEngine.SceneManagement;
 
 public class SaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 1;
+    public const int CurrentSaveVersion = 2;
 
     public static SaveManager Instance { get; private set; }
 
     private GameState gameState;
+    private GameSession gameSession;
     private FadeTransition fadeTransition;
     private bool startupStarted;
 
@@ -29,6 +30,7 @@ public class SaveManager : MonoBehaviour
         Instance = this;
 
         gameState = GetComponent<GameState>();
+        gameSession = GetComponent<GameSession>();
         fadeTransition = GetComponent<FadeTransition>();
     }
 
@@ -84,7 +86,8 @@ public class SaveManager : MonoBehaviour
             saveVersion = CurrentSaveVersion,
             activeFlags = gameState.GetAllFlags(),
             checkpointSceneName = gameState.CheckpointSceneName,
-            checkpointSpawnId = gameState.CheckpointSpawnId
+            checkpointSpawnId = gameState.CheckpointSpawnId,
+            journal = gameSession.JournalSaveData
         };
 
         try
@@ -240,6 +243,8 @@ public class SaveManager : MonoBehaviour
         {
             yield return fadeTransition.Open();
         }
+
+        gameSession.JournalManager.StartNewGame();
     }
 
     private IEnumerator LoadSaveRoutine(SaveGameData data)
@@ -249,6 +254,8 @@ public class SaveManager : MonoBehaviour
             data.checkpointSceneName,
             data.checkpointSpawnId
         );
+
+        gameSession.SetJournalSaveData(data.journal);
 
         if (!CanLoadScene(data.checkpointSceneName))
         {
