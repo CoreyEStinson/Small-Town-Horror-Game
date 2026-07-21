@@ -1,12 +1,20 @@
 using System;
 using UnityEngine;
 
+public enum JournalUpdateType
+{
+    QuestStarted,
+    ObjectiveActivated,
+    ObjectiveCompleted,
+    QuestCompleted
+}
+
 public class JournalManager : MonoBehaviour
 {
     public static JournalManager Instance { get; private set; } 
 
     public event Action JournalChanged;
-    public event Action<string> JournalUpdated;
+    public event Action<JournalUpdateType, string> JournalToastRequested; 
     public event Action<Note> NoteDiscovered;
 
     public JournalSaveData Data => gameSession.JournalSaveData;
@@ -124,7 +132,7 @@ public class JournalManager : MonoBehaviour
             Data.trackedQuestId = quest.id;
         }
 
-        NotifyJournalUpdated(quest.title);
+        NotifyJournalUpdated(JournalUpdateType.QuestStarted, quest.title);
         return true;
     }
 
@@ -150,7 +158,7 @@ public class JournalManager : MonoBehaviour
         }
 
         objectiveState.isActive = true;
-        NotifyJournalUpdated(objective.text);
+        NotifyJournalUpdated(JournalUpdateType.ObjectiveActivated, objective.text);
         return true;
     }
 
@@ -182,12 +190,13 @@ public class JournalManager : MonoBehaviour
             objectiveState.currentProgress = objective.progressTarget.Value;
         }
 
+        NotifyJournalUpdated(JournalUpdateType.ObjectiveCompleted, $"{objective.text} Complete");
+
         if (AreAllObjectivesCompleted(questState))
         {
-            return CompleteQuest(questId);
+            CompleteQuest(questId);
         }
 
-        NotifyJournalUpdated($"{objective.text} complete");
         return true;
     }
 
@@ -258,9 +267,7 @@ public class JournalManager : MonoBehaviour
             return CompleteObjective(questId, objectiveId);
         }
 
-        NotifyJournalUpdated(
-            $"{objective.text} ({objectiveState.currentProgress}/{target})"
-        );
+        NotifyJournalChanged();
 
         return true;
     }
@@ -305,7 +312,7 @@ public class JournalManager : MonoBehaviour
 
         EnsureTrackedQuest();
 
-        NotifyJournalUpdated($"{quest.title} completed");
+        NotifyJournalUpdated(JournalUpdateType.QuestCompleted, quest.title);
         return true;
     }
 
@@ -581,10 +588,10 @@ public class JournalManager : MonoBehaviour
         JournalChanged?.Invoke();
     }
 
-    private void NotifyJournalUpdated(string updateText)
+    private void NotifyJournalUpdated(JournalUpdateType updateType, string updateText)
     {
         JournalChanged?.Invoke();
-        JournalUpdated?.Invoke(updateText);   
+        JournalToastRequested?.Invoke(updateType, updateText);   
     } 
 
 }
