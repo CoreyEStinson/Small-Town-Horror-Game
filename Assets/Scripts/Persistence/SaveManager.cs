@@ -124,6 +124,63 @@ public class SaveManager : MonoBehaviour
         }
     }
 
+    public void DeleteSaveAndRestart()
+    {
+        if (FadeTransition.IsTransitioning)
+        {
+            return;
+        }
+
+        DeleteSaveFile();
+        StartCoroutine(StartFreshGameRoutine());
+    }
+
+    public bool DeleteSaveFile()
+    {
+        if (FadeTransition.IsTransitioning)
+        {
+            return false;
+        }
+
+        try
+        {
+            bool deletedAnyFile = false;
+
+            if (File.Exists(SavePath))
+            {
+                File.Delete(SavePath);
+                deletedAnyFile = true;
+            }
+
+            string temporaryPath = SavePath + ".tmp";
+
+            if (File.Exists(temporaryPath))
+            {
+                File.Delete(temporaryPath);
+                deletedAnyFile = true;
+            }
+
+            Debug.Log(
+                deletedAnyFile
+                    ? "Deleted save file."
+                    : "No save file existed to delete",
+                this
+            );
+
+            return deletedAnyFile;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(
+                $"Failed to delete save file: {e.Message}",
+                this
+            );
+
+            return false;
+        }
+        
+    }
+
     public void LoadSavedGame()
     {
         if (FadeTransition.IsTransitioning)
@@ -330,7 +387,7 @@ public class SaveManager : MonoBehaviour
 
         yield return new WaitForEndOfFrame();
     }
-     private bool PlaceAtSpawn(String spawnId)
+     private bool PlaceAtSpawn(string spawnId)
     {
         if (!GameState.IsValidStableId(spawnId))
         {

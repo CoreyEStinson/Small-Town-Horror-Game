@@ -5,3 +5,15 @@ notes:
       Dear Saul,
       The harvest must proceed...
     imagePath: Journal/Images/letter
+  - id: clickclack_portrait
+    title: Click Clack
+    imagePath: Journal/Images/ClickClack
+  - id: bayker_jam_praise
+    title: Bayker's Jam
+    bodyText: |
+      To Bayker,
+      Your jam is the best in town. Sweet, bright, and impossibly good. I sure hope nothing bad happens to you!
+      You friendly cult leader,
+      Saul
+      
+

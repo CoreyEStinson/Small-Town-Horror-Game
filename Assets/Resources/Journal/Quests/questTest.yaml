@@ -24,3 +24,22 @@ quests:
         location: Old Bakery
         giver: Bayker
         initiallyActive: false
+  - id: missing_mill_key
+    type: side
+    autoStart: false
+    title: The Missing Mill Key
+    summary: Find the key needed to open the abandoned mill.
+    completionSummary: The mill key was returned and the mill can be opened again.
+    objectives:
+      - id: search_the_mill_yard
+        text: Search the mill yard for the missing key.
+        location: Abandoned Mill
+        giver: Mill Keeper
+        initiallyActive: true
+
+      - id: return_the_mill_key
+        text: Return the mill key to the Mill Keeper.
+        location: Mill House
+        giver: Mill Keeper
+        initiallyActive: false
+

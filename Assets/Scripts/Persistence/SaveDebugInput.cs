@@ -24,5 +24,9 @@ public class SaveDebugInput : MonoBehaviour
         {
             SaveManager.Instance?.LogCurrentState();
         }
+        else if (Keyboard.current.f12Key.wasPressedThisFrame)
+        {
+            SaveManager.Instance?.DeleteSaveAndRestart();
+        }
     }
 }
